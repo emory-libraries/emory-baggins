@@ -17,6 +17,19 @@ Python scripts and utilities for creating `bagit`_ archives of digital content
    :target: https://landscape.io/github/emory-libraries/emory-baggins/develop
    :alt: Code Health
 
+Installation
+------------
+
+This python package and associated scripts can be installed from GitHub
+using pip::
+
+    pip install git+https://github.com/emory-libraries/emory-baggins.git#egg=baggins
+
+To install a specific version by tag or branch, e.g. the current development
+version, specify the tag or branch using `@tag`::
+
+    pip install git+https://github.com/emory-libraries/emory-baggins.git@develop#egg=baggins
+
 
 Developer Notes
 ---------------
