@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<items version="2.0" count="1">
+  <item pid="7svgb" barcode="000011248127" id="3031" control_key="ocm08951025">
+    <pages_per_image>1</pages_per_image>
+    <volume>1909</volume>
+    <data_complete_date>2010-10-20 06:50:05</data_complete_date>
+    <repository_ingest_date>2010-10-21 01:35:01</repository_ingest_date>
+    <master_images_path count="2218">/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/IMAGES</master_images_path>
+    <display_images_path count="2218">/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output</display_images_path>
+    <ocr_files_path count="2218">/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output</ocr_files_path>
+    <pdf_file>/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output/Output.pdf</pdf_file>
+    <ocr_file>/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output/Output.xml</ocr_file>
+    <batch_process_file>/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/METADATA/ocm08951025_BatchProcess.xml</batch_process_file>
+    <scan_job_file>/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/METADATA/ocm08951025_ScanJob.xml</scan_job_file>
+    <marc_file>/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/ocm08951025_MRC.xml</marc_file>
+    <public_domain passed="true">
+      <reviewed_by>sysUser</reviewed_by>
+      <reviewed_at>Tue Feb 23 16:54:55 -0500 2010</reviewed_at>
+    </public_domain>
+    <owning_library short_name="general" id="1">Woodruff Library</owning_library>
+    <collection id="10">Atlanta City Directories</collection>
+  </item>
+</items>

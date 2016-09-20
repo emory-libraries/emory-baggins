@@ -1,2 +1,26 @@
-# emory-baggins
-python scripts and utilities for creating bagit archives of digital content
+baggins
+=======
+
+Python scripts and utilities for creating `bagit`_ archives of digital content
+
+.. _bagit: https://en.wikipedia.org/wiki/BagIt
+
+
+Developer Notes
+---------------
+This project uses `git-flow`_ branching conventions.
+
+.. _git-flow: https://github.com/nvie/gitflow
+
+To install dependencies for your local checkout of the code, run ``pip install``
+in the project directory (the use of `virtualenv`_ is recommended)::
+
+    pip install -e .
+
+.. _virtualenv: http://www.virtualenv.org/en/latest/
+
+Install test dependencies::
+
+    pip install -e ".[test]"
+
+Run unit tests: ``py.test`` or ``python setup.py test``

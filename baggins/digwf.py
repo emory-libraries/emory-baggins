@@ -66,14 +66,22 @@ class Item(xmlmap.XmlObject):
     pdf = xmlmap.StringField('pdf_file')
     'path to PDF file'
 
-    # incomplete - only mapping needed fields for now
+    # NOTE: these mappings are incomplete, and only include what was pused
+    # for readux page ingest; we will likely need to add more mappings
 
 
 class Items(xmlmap.XmlObject):
     ''':class:`~eulxml.xmlmap.XmlObject` for the response returned by getItems.
     Has a count of the number of items found, and a list of :class:`Item`
     objects with details about each item.'''
-    count = xmlmap.IntegerField('@count')
+    _count = xmlmap.IntegerField('@count')
     'number of items in the result'
     items = xmlmap.NodeListField('item', Item)
     'List of items as instances of :class:`~readux.books.digwf.Item`'
+
+    @property
+    def count(self):
+        # in an empty result set, count is not set; return 0 to simplify
+        # code logic where results are checked
+        return self._count or 0
+
