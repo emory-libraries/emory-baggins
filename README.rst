@@ -24,3 +24,10 @@ Install test dependencies::
     pip install -e ".[test]"
 
 Run unit tests: ``py.test`` or ``python setup.py test``
+
+To run unit tests with output for continuous integration, use::
+
+    py.test --cov=baggins --cov-report xml --junitxml=tests.xml
+
+For development, you may also want to install ``pytest-sugar`` for prettier
+test output.
