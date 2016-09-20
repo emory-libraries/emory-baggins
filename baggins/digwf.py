@@ -41,7 +41,10 @@ class Client(object):
         url = '%s/getItems' % self.base_url
         r = requests.get(url, params=kwargs)
         if r.status_code == requests.codes.ok:
-            return xmlmap.load_xmlobject_from_string(r.content, Items)  # possible r.text ?
+            return xmlmap.load_xmlobject_from_string(r.content, Items)
+        else:
+            # raise the error so it can be caught downstream
+            r.raise_for_status()
 
 
 class Item(xmlmap.XmlObject):

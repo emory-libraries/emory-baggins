@@ -7,7 +7,6 @@ from baggins import digwf
 
 
 FIXTURE_DIR = os.path.join(os.path.dirname(__file__), 'fixtures')
-print 'fixture dir = ', FIXTURE_DIR
 
 
 class TestDigwfClient:
@@ -42,6 +41,11 @@ class TestDigwfClient:
             expected_url = '%s/getItems' % api_url
             mockrequests.get.assert_called_with(
                 expected_url, params={'item_id': item_id})
+
+            # error response should raise an exception
+            mockrequests.get.return_value.status_code = 400
+            result = digwf_client.get_items(item_id=item_id)
+            mockrequests.get.return_value.raise_for_status.assert_called_once()
 
     def test_items_xml(self):
         # basic inspection of sample result / xml mapping
