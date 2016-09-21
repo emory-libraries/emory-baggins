@@ -14,7 +14,7 @@ from baggins.digwf import Client
 class LsdiBagger(object):
 
     #: parsed argument and configuration options
-    options = None
+    options = argparse.Namespace()   # start with an empty args namespace
 
     def get_options(self):
         parser = argparse.ArgumentParser(
@@ -22,11 +22,15 @@ class LsdiBagger(object):
         parser.add_argument('item_ids', metavar='Item ID', nargs='*',
                             help='Digitization Workflow Item ID')
 
+        parser.add_argument('-o', '--output', metavar='OUTPUT_DIR',
+                            help='Directory for generated bag content')
+
         # config file options
         cfg_args = parser.add_argument_group('Config file options')
         cfg_args.add_argument(
             '--generate-config', '-g', default=False, dest='gen_config',
-            help='''Create a sample config file at the specified location''')
+            help='''Create a sample config file at the specified location,
+            including any options passed.''')
         cfg_args.add_argument('--config', '-c', default='$HOME/.lsdi-bagger',
                               help='Load the specified config file')
 
@@ -34,9 +38,10 @@ class LsdiBagger(object):
         self.options = parser.parse_args()
 
         # if requested, generate an empty config file that can be filled in
+        # and then quit
         if self.options.gen_config:
             self.generate_configfile()
-            return
+            exit()
 
         # check that we have something to process
         if not self.options.item_ids:
@@ -74,6 +79,7 @@ class LsdiBagger(object):
 
     # config file section headings
     digwf_cfg = 'Digitization Workflow'
+    filepaths_cfg = 'File Paths'
 
     def setup_configparser(self):
         # define a config file parser with options for required
@@ -82,6 +88,9 @@ class LsdiBagger(object):
         # digwf
         config.add_section(self.digwf_cfg)
         config.set(self.digwf_cfg, 'url', 'http://server:port/digwf_api/')
+        # file paths
+        config.add_section(self.filepaths_cfg)
+        config.set(self.filepaths_cfg, 'output', self.options.output or '')
         # eventually we will have more config options here...
         return config
 
@@ -105,7 +114,8 @@ class LsdiBagger(object):
             print 'Please generate or specify a config file.'
             exit()
 
-        # add need configs to options object
+        # add needed configs to options object
+        # - digwf url is required
         try:
             self.options.digwf_url = cfg.get(self.digwf_cfg, 'url')
         except (NoOptionError, NoSectionError):
@@ -114,3 +124,9 @@ class LsdiBagger(object):
         if not getattr(self.options, 'digwf_url', None):
             print 'Error: Digitization Workflow URL not configured'
             exit()
+
+        # output could be specified via command line or config file;
+        # command line flag overrules config
+        if cfg.has_option(self.filepaths_cfg, 'output') and \
+           not self.options.output:
+            self.options.output = cfg.get(self.filepaths_cfg, 'output')

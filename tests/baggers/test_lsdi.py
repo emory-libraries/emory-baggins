@@ -46,17 +46,20 @@ class TestLsdiBagger:
 
     def test_setup_configparser(self):
         lbag = LsdiBagger()
+        lbag.options = Mock()
         cfg = lbag.setup_configparser()
         assert isinstance(cfg, ConfigParser)
         assert cfg.has_section(lbag.digwf_cfg)
         assert cfg.has_option(lbag.digwf_cfg, 'url')
+        assert cfg.has_section(lbag.filepaths_cfg)
+        assert cfg.has_option(lbag.filepaths_cfg, 'output')
         # NOTE: more sections will probably be added and should be tested
         # when they are
 
     def test_generate_configfile(self, capsys):
         lbag = LsdiBagger()
         tempconfig = tempfile.NamedTemporaryFile()
-        lbag.options = Mock(gen_config=tempconfig.name)
+        lbag.options = Mock(gen_config=tempconfig.name, output=None)
         lbag.generate_configfile()
         # check captured output
         output = capsys.readouterr()
@@ -67,16 +70,36 @@ class TestLsdiBagger:
         cfg.readfp(tempconfig)
         assert cfg.has_section(lbag.digwf_cfg)
         assert cfg.has_option(lbag.digwf_cfg, 'url')
+        assert cfg.has_section(lbag.filepaths_cfg)
+        assert cfg.has_option(lbag.filepaths_cfg, 'output')
+        # no output option specified - empty string
+        assert cfg.get(lbag.filepaths_cfg, 'output') == ''
+
+        # output dir should prepopulate if set in options
+        output_dir = '/tmp/baggins/'
+        tempconfig = tempfile.NamedTemporaryFile()
+        lbag.options = Mock(gen_config=tempconfig.name, output=output_dir)
+        lbag.generate_configfile()
+        cfg.readfp(tempconfig)
+        # output option specified, passed through to config
+        assert cfg.get(lbag.filepaths_cfg, 'output') == output_dir
 
     def test_load_configfile_valid(self):
         lbag = LsdiBagger()
         # use a Mock to simulate argparse options
-        lbag.options = Mock(item_ids=[], gen_config=False, digwf_url=None)
+        lbag.options = Mock(item_ids=[], gen_config=False, digwf_url=None,
+                            output=None)
         # load fixture that should work
         lbag.options.config = os.path.join(FIXTURE_DIR, 'lsdi-bagger.cfg')
         lbag.load_configfile()
         # value from the config fixture
         assert lbag.options.digwf_url == 'http://example.co:3100/digwf_api/'
+        assert lbag.options.output == '/tmp/bags'
+
+        # if output is specified on command line, that takes precedence
+        lbag.options.output = '/i/want/bags/somewhere/else'
+        lbag.load_configfile()
+        assert lbag.options.output != '/tmp/bags'
 
     def test_load_configfile_nonexistent(self, capsys):
         lbag = LsdiBagger()
