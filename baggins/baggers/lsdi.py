@@ -35,7 +35,7 @@ class LsdiBagger(object):
         if self.options.item_ids:
             item_ids = self.options.item_ids
         else:
-            item_ids = load_item_ids()
+            item_ids = self.load_item_ids()
 
         for item_id in item_ids:
             result = digwf_api.get_items(item_id=item_id)
