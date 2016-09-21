@@ -4,7 +4,7 @@ Bagging logic for LSDI digitized book content.
 '''
 
 import argparse
-from ConfigParser import ConfigParser, NoOptionError
+from ConfigParser import ConfigParser, NoOptionError, NoSectionError
 import os
 import requests
 
@@ -12,6 +12,9 @@ from baggins.digwf import Client
 
 
 class LsdiBagger(object):
+
+    #: parsed argument and configuration options
+    options = None
 
     def get_options(self):
         parser = argparse.ArgumentParser(
@@ -42,27 +45,7 @@ class LsdiBagger(object):
             exit()
 
         # load config file
-        cfg = ConfigParser()
-        print 'config file == ', self.options.config
-        configfile_path = self.options.config.replace('$HOME',
-                                                      os.environ['HOME'])
-        try:
-            with open(configfile_path) as cfgfile:
-                cfg.readfp(cfgfile)
-        except IOError:
-            print 'Unable to load config file at %s' % configfile_path
-            print 'Please generate or specify a config file.'
-            exit()
-
-        # add need configs to options object
-        try:
-            self.options.digwf_url = cfg.get(self.digwf_cfg, 'url')
-        except NoOptionError:
-            pass
-
-        if not getattr(self.options, 'digwf_url', None):
-            print 'Error: Digitization Workflow URL not configured'
-            exit()
+        self.load_configfile()
 
     def run(self):
         self.get_options()
@@ -108,3 +91,26 @@ class LsdiBagger(object):
         with open(self.options.gen_config, 'w') as cfgfile:
             config.write(cfgfile)
         print 'Config file created at %s' % self.options.gen_config
+
+    def load_configfile(self):
+        # load config file
+        cfg = ConfigParser()
+        configfile_path = self.options.config.replace('$HOME',
+                                                      os.environ['HOME'])
+        try:
+            with open(configfile_path) as cfgfile:
+                cfg.readfp(cfgfile)
+        except IOError:
+            print 'Unable to load config file at %s' % configfile_path
+            print 'Please generate or specify a config file.'
+            exit()
+
+        # add need configs to options object
+        try:
+            self.options.digwf_url = cfg.get(self.digwf_cfg, 'url')
+        except (NoOptionError, NoSectionError):
+            pass
+
+        if not getattr(self.options, 'digwf_url', None):
+            print 'Error: Digitization Workflow URL not configured'
+            exit()
