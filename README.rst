@@ -44,9 +44,11 @@ in the project directory (the use of `virtualenv`_ is recommended)::
 
 .. _virtualenv: http://www.virtualenv.org/en/latest/
 
-Install test dependencies::
+Unit tests are written and run with `py.test`_. Install test dependencies::
 
     pip install -e ".[test]"
+
+.. _py.test: http://docs.pytest.org/
 
 Run unit tests: ``py.test`` or ``python setup.py test``
 
