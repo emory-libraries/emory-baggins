@@ -104,11 +104,11 @@ class LsdiBagger(object):
         # config file options
         cfg_args = parser.add_argument_group('Config file options')
         cfg_args.add_argument(
-            '--generate-config', '-g', default=False, dest='gen_config',
+            '--generate-config', '-g', dest='gen_config',
             help='''Create a sample config file at the specified location,
             including any options passed.''')
         cfg_args.add_argument('--config', '-c', default='$HOME/.lsdi-bagger',
-                              help='Load the specified config file')
+                              help='Load the specified config file (default: %(default)s')
 
         # parse command line arguments
         self.options = parser.parse_args()
