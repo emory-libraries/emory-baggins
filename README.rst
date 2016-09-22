@@ -58,3 +58,8 @@ To run unit tests with output for continuous integration, use::
 
 For development, you may also want to install ``pytest-sugar`` for prettier
 test output.
+
+When working with LSDI content, the code assumes that the paths provided by the
+Digitization Workflow are available locally.  For convenience of development,
+it is recommended to mount these files on your development workstation at the
+same path using sshfs.
