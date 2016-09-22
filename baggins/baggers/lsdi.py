@@ -108,7 +108,7 @@ class LsdiBagger(object):
             help='''Create a sample config file at the specified location,
             including any options passed.''')
         cfg_args.add_argument('--config', '-c', default='$HOME/.lsdi-bagger',
-                              help='Load the specified config file (default: %(default)s')
+                              help='Load the specified config file (default: %(default)s)')
 
         # parse command line arguments
         self.options = parser.parse_args()
