@@ -86,9 +86,10 @@ class Baggee(object):
             datafile_base = os.path.basename(datafile)
             # make sure file is writable so bagit can move it,
             # otherwise bagit will error
-            # NOTE: depending on file ownership, this may not be the
-            # permissions we actually need...
-            os.chmod(os.path.join(bagdir, datafile_base), 0644)
+            # NOTE: for now, assuming user creating the bag has at least
+            # group permissions on the content being bagged; might
+            # need revision at a later point.
+            os.chmod(os.path.join(bagdir, datafile_base), 0664)
 
     def create_bag(self, basedir):
         '''Create a bagit bag for this item.'''
