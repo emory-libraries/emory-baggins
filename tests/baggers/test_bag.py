@@ -77,3 +77,8 @@ class TestBaggee:
         # should include test data file
         data_files = list(bag.payload_files())
         assert 'data/%s' % samplecontent_basename in data_files
+
+        # bagit handles these automatically, but explicitly check that they
+        # are set in our bags
+        assert bag.version
+        assert bag.encoding
