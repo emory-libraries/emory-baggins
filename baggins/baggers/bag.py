@@ -15,6 +15,10 @@ class Baggee(object):
     #: rough title length, for truncating long titles
     title_length = 30
 
+    #: checksum algorithms to use when generating the bag
+    checksum_algorithms = ['md5', 'sha256']
+    # NOTE: may eventually want to make these configurable
+
     def object_id(self):
         '''Object ID for this item. Use PID, ARK, or OCLC Number
         in that order of preference.
@@ -94,5 +98,5 @@ class Baggee(object):
         # add data to the bag
         self.copy_data_files(bagdir)
 
-        bag = bagit.make_bag(bagdir)
+        bag = bagit.make_bag(bagdir, checksum=self.checksum_algorithms)
         return bag

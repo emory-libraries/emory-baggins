@@ -82,3 +82,10 @@ class TestBaggee:
         # are set in our bags
         assert bag.version
         assert bag.encoding
+
+        # by default, we want to create both md5 and sha256 manifests
+        manifest_names = [os.path.basename(manifest)
+                          for manifest in bag.manifest_files()]
+        # NOTE: could base this test on samplebag.checksum_algorithms
+        assert 'manifest-md5.txt' in manifest_names
+        assert 'manifest-sha256.txt' in manifest_names
