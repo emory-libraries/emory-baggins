@@ -16,6 +16,9 @@ from baggins.baggers import bag
 
 
 class LsdiBaggee(bag.Baggee):
+    '''Bag object extending base baggee class, for creating lsdi
+    bags according to emory bagit specification.
+    '''
 
     def __init__(self, item):
         self.item = item
@@ -88,6 +91,9 @@ class LsdiBaggee(bag.Baggee):
 
 
 class LsdiBagger(object):
+    '''Logic for the lsdi-bagger script.  Handles argument parsing, config file
+    generation and loading, and processing items.
+    '''
 
     #: parsed argument and configuration options
     options = argparse.Namespace()   # start with an empty args namespace
