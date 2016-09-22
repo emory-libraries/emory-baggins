@@ -1,6 +1,6 @@
 from ConfigParser import ConfigParser
 from eulxml.xmlmap import load_xmlobject_from_file
-from mock import patch, Mock
+from mock import patch, Mock, call
 import pytest
 import tempfile
 import os
@@ -176,8 +176,72 @@ class TestLsdiBagger:
         assert output[0] == \
             'Error: Digitization Workflow URL not configured\n'
 
-    # TODO: test process_items method; current functionality is just
-    # placeholder logic and will change
+    @patch('baggins.baggers.lsdi.Client')
+    def test_process_multiple_items(self, mockdigwfclient, capsys):
+        lbag = LsdiBagger()
+        test_ids = [1234, 5678, 8181]
+        lbag.options.item_ids = test_ids
+        lbag.options.digwf_url = 'http://some.dig/wf/api'
+        mockdigwf_api = mockdigwfclient.return_value
+        # simuulate no matches
+        mockdigwf_api.get_items.return_value.count = 0
+
+        lbag.process_items()
+
+        # digwf api should be called once for each item
+        output = capsys.readouterr()
+        for test_id in test_ids:
+            assert call(item_id=test_id) in mockdigwf_api.get_items.mock_calls
+            assert 'No item found for item id %s' % test_id \
+                in output[0]
+
+    @patch('baggins.baggers.lsdi.Client')
+    def test_process_items_toomany(self, mockdigwfclient, capsys):
+        lbag = LsdiBagger()
+        test_id = 1234
+        lbag.options.item_ids = [test_id]
+        lbag.options.digwf_url = 'http://some.dig/wf/api'
+        mockdigwf_api = mockdigwfclient.return_value
+        # simulate multiple matches
+        mockdigwf_api.get_items.return_value.count = 5
+        lbag.process_items()
+        output = capsys.readouterr()
+        assert 'Error! DigWF returned 5 matches for item id %s' % test_id \
+            in output[0]
+
+    @patch('baggins.baggers.lsdi.Client')
+    @patch('baggins.baggers.lsdi.LsdiBaggee')
+    def test_process_items_valid(self, mocklsdibaggee, mockdigwfclient, capsys):
+        lbag = LsdiBagger()
+        test_id = 1234
+        lbag.options.item_ids = [test_id]
+        lbag.options.digwf_url = 'http://some.dig/wf/api'
+        lbag.options.output = '/tmp/lilbags'
+        mockdigwf_api = mockdigwfclient.return_value
+        # simulate one match
+        mockdigwf_api.get_items.return_value.count = 1
+        # set return value for mock create bag
+        # NOTE: technically this returns a bagit bag; for now we are
+        # just using it to display the path
+        testbagpath = '/path/to/new/bag'
+        mocklsdibaggee.return_value.create_bag.return_value = testbagpath
+
+        # use mock for digwf item
+        mockdigwf_item = Mock(pid='789', control_key='ocm4567',
+                              marc_path='/path/to/some/ocm4567_MRC.xml')
+        mockdigwf_api.get_items.return_value.items = [mockdigwf_item]
+        lbag.process_items()
+        mocklsdibaggee.assert_called_with(mockdigwf_item)
+        mocklsdibaggee.return_value.create_bag.assert_called_with(lbag.options.output)
+
+        output = capsys.readouterr()
+        # currently script reports that item was found with minimal
+        # metadata (NOTE: this output could change)
+        assert 'Found item %s (pid %s, control key %s, marc %s)' % \
+            (test_id, mockdigwf_item.pid, mockdigwf_item.control_key,
+             mockdigwf_item.marc_path) in output[0]
+        # and where the bag was created
+        assert 'Bag created at %s' % testbagpath in output[0]
 
 
 @pytest.fixture
