@@ -1,10 +1,13 @@
 from ConfigParser import ConfigParser
+from eulxml.xmlmap import load_xmlobject_from_file
 from mock import patch, Mock
 import pytest
+import tempfile
 import os
 import tempfile
 
-from baggins.baggers.lsdi import LsdiBagger
+from baggins.baggers.lsdi import LsdiBagger, LsdiBaggee
+from baggins import digwf
 
 
 FIXTURE_DIR = os.path.join(os.path.dirname(__file__), '..', 'fixtures')
@@ -134,3 +137,144 @@ class TestLsdiBagger:
 
     # TODO: test process_items method; current functionality is just
     # placeholder logic and will change
+
+
+@pytest.fixture
+def lsdibag():
+    # create and return a LsdiBaggee object to use in tests
+    digwf_item_response = os.path.join(FIXTURE_DIR, 'digwf_getitems_3031.xml')
+    response = load_xmlobject_from_file(digwf_item_response, digwf.Items)
+    # update path to use local fixture for marc xml
+    item = response.items[0]
+    item.marc_path = os.path.join(FIXTURE_DIR, 'ocm08951025_MRC.xml')
+    return LsdiBaggee(response.items[0])
+
+
+@pytest.mark.usefixtures("lsdibag", "tmpdir")
+class TestLsdiBagger:
+
+    def test_object_id(self, lsdibag):
+        # pid if present
+        assert lsdibag.object_id() == '7svgb'
+        # for item with no pid, control key should be used
+        lsdibag.item.pid = None
+        assert lsdibag.object_id() == 'ocm08951025'
+
+    def test_object_title(self, lsdibag):
+        # title from marc
+        assert lsdibag.object_title() == \
+            "Atlanta City Directory Co.'s Greater Atlanta (Georgia) city directory ... including Avondale, Buckhead ... and all immediate suburbs .."
+
+    def test_image_files(self, lsdibag, tmpdir):
+        # set fixture object to look in tmp dir
+        lsdibag.item.display_image_path = unicode(tmpdir)
+
+        # with no files to find, should error
+        with pytest.raises(Exception):
+            lsdibag.image_files()
+
+        # create multiple to test precedence order
+        tiffs = []
+        for i in range(10):
+            tiffs.append(tempfile.NamedTemporaryFile(suffix='.tif',
+                                                     dir=unicode(tmpdir)))
+        uc_tiffs = []
+        for i in range(10):
+            uc_tiffs.append(tempfile.NamedTemporaryFile(suffix='.TIF',
+                                                        dir=unicode(tmpdir)))
+        jp2s = []
+        for i in range(10):
+            jp2s.append(tempfile.NamedTemporaryFile(suffix='.jp2',
+                                                    dir=unicode(tmpdir)))
+
+        jpegs = []
+        for i in range(10):
+            jpegs.append(tempfile.NamedTemporaryFile(suffix='.jpg',
+                                                     dir=unicode(tmpdir)))
+        # count mismatch
+        with pytest.raises(Exception):
+            lsdibag.image_files()
+
+        # configure fixture count to match
+        lsdibag.item.display_image_count = 10
+        img_files = lsdibag.image_files()
+        # when *.tif is present, those should be selected
+        for imgfile in tiffs:
+            assert imgfile.name in img_files
+            imgfile.close()  # close to delete
+
+        # if .tif is not present, should look for .TIF
+        img_files = lsdibag.image_files()
+        for imgfile in uc_tiffs:
+            assert imgfile.name in img_files
+            imgfile.close()   # close to delete
+
+        # if .tif/.TIF is not present, should look for .jp2
+        img_files = lsdibag.image_files()
+        for imgfile in jp2s:
+            assert imgfile.name in img_files
+            imgfile.close()   # close to delete
+
+        # if nothing else is found, should look for .jpeg
+        img_files = lsdibag.image_files()
+        for imgfile in jpegs:
+            assert imgfile.name in img_files
+            imgfile.close()   # close to delete
+
+    def test_page_text_files(self, lsdibag, tmpdir):
+        # set fixture object to look in tmp dir
+        lsdibag.item.ocr_file_path = unicode(tmpdir)
+
+        # with no files to find, should error
+        with pytest.raises(Exception):
+            lsdibag.page_text_files()
+
+        # generate test text files
+        textfiles = []
+        for _ in range(10):
+            textfiles.append(tempfile.NamedTemporaryFile(suffix='.txt',
+                                                         dir=unicode(tmpdir)))
+        # without .pos files, should still error
+        with pytest.raises(Exception):
+            lsdibag.page_text_files()
+
+        # generate test position files
+        posfiles = []
+        for _ in range(10):
+            posfiles.append(tempfile.NamedTemporaryFile(suffix='.pos',
+                                                        dir=unicode(tmpdir)))
+        # count mismatch should error
+        with pytest.raises(Exception):
+            lsdibag.page_text_files()
+
+        lsdibag.item.ocr_file_count = 10
+        files = lsdibag.page_text_files()
+        # should include all txt and pos files
+        for textfile in textfiles:
+            assert textfile.name in files
+        for posfile in posfiles:
+            assert posfile.name in files
+
+    def test_data_files(self, lsdibag):
+        with patch.object(lsdibag, 'image_files') as mock_imgfiles:
+            with patch.object(lsdibag, 'page_text_files') as mock_txtfiles:
+
+                mock_imgfiles.return_value = [
+                    '001.tif', '002.tif', '003.tif'
+                ]
+                mock_txtfiles.return_value = [
+                    '001.txt', '002.txt', '003.txt'
+                    '001.pos', '002.pos', '003.pos'
+                ]
+
+                datafiles = lsdibag.data_files()
+
+                # should include pdf and ocr file
+                assert lsdibag.item.pdf in datafiles
+                assert lsdibag.item.ocr_file in datafiles
+                # should all image and text files
+                for imgfile in mock_imgfiles.return_value:
+                    assert imgfile in datafiles
+                for txtfile in mock_txtfiles.return_value:
+                    assert txtfile in datafiles
+

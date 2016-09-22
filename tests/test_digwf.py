@@ -59,8 +59,12 @@ class TestDigwfClient:
         assert item.item_id == '3031'
         assert item.control_key == 'ocm08951025'
         assert item.display_image_path == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output'
+        assert item.display_image_count == 2218
         assert item.ocr_file_path == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output'
+        assert item.ocr_file_count == 2218
         assert item.pdf == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output/Output.pdf'
+        assert item.marc_path == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/ocm08951025_MRC.xml'
+        assert item.ocr_file == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output/Output.xml'
 
         response = load_xmlobject_from_file(self.empty_response, digwf.Items)
         assert response.count == 0

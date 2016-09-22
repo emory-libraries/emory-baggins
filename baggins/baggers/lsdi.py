@@ -4,11 +4,87 @@ Bagging logic for LSDI digitized book content.
 '''
 
 import argparse
+import bagit
 from ConfigParser import ConfigParser, NoOptionError, NoSectionError
+import glob
 import os
 import requests
+import shutil
 
 from baggins.digwf import Client
+from baggins.baggers import bag
+
+
+class LsdiBaggee(bag.Baggee):
+
+    def __init__(self, item):
+        self.item = item
+
+    def object_id(self):
+        '''Object id for bag name; use pid/ark if available; otherwise, use
+        digwf control key (OCLC #)'''
+        return self.item.pid or self.item.control_key
+
+    def object_title(self):
+        '''Object title for bag name: use title from MARC xml'''
+        return self.item.marc.title()
+
+    def data_files(self):
+        '''List of data files to be included in the bag.  PDF, OCR xml,
+        page images, and page text/position files.'''
+        return [self.item.pdf, self.item.ocr_file] + self.image_files() \
+            + self.page_text_files()
+
+    def image_files(self):
+        '''Find image files based on display image path returned from the
+        DigWF API.  Looks for TIFFs, then JP2s, thn JPG files.  Raises an error
+        if the number of images found doesn't match the expected count in the
+        item information returned by the DigWF APi.
+        '''
+        image_path = self.item.display_image_path
+        # first, look for TIFFs
+        images = glob.glob('%s/*.tif' % image_path)
+        # tif variant - in some cases, extension is upper case
+        if not len(images):
+            images = glob.glob('%s/*.TIF' % image_path)
+        # if no TIFFs were found, look for JP2s
+        if not len(images):
+            images = glob.glob(os.path.join(image_path, '*.jp2'))
+        # if neither jp2s nor tiffs were found, look for jpgs
+        if not len(images):
+            images = glob.glob('%s/*.jpg' % image_path)
+
+        # if images were not found, error
+        if not len(images):
+            raise Exception('Display images not found for %s at %s' %
+                            (self.item.item_id, image_path))
+        # if wrong number of images were found, error
+        if len(images) != self.item.display_image_count:
+            raise Exception('Found %d images for %s instead of expected %d' %
+                            (len(images), self.item.item_id,
+                            self.item.display_image_count))
+        return images
+
+    def page_text_files(self):
+        '''Find text and position files based on ocr file path returned from the
+        DigWF API.  Raises an error if the number of text files or the number
+        of position files found doesn't match the expected count in the
+        item information returned by the DigWF APi.
+        '''
+        ocr_path = self.item.ocr_file_path
+        # plain text files generated from ocr
+        text_files = glob.glob('%s/*.txt' % ocr_path)
+        # position files generated from ocr process
+        pos_files = glob.glob('%s/*.pos' % ocr_path)
+        if len(text_files) != self.item.ocr_file_count:
+            raise Exception('Found %d text files for %s instead of expected %d',
+                            len(text_files), self.item.item_id,
+                            self.item.ocr_file_count)
+        if len(pos_files) != self.item.ocr_file_count:
+            raise Exception('Found %d position files for %s instead of expected %d',
+                            len(pos_files), self.item.item_id,
+                            self.item.ocr_file_count)
+        return text_files + pos_files
 
 
 class LsdiBagger(object):
@@ -52,6 +128,12 @@ class LsdiBagger(object):
         # load config file
         self.load_configfile()
 
+        # output directory is required (config file or flag)
+        if not self.options.output:
+            print 'Please specify output directory'
+            parser.print_help()
+            exit()
+
     def run(self):
         self.get_options()
         self.process_items()
@@ -67,15 +149,22 @@ class LsdiBagger(object):
 
             if result.count == 1:
                 item = result.items[0]
-                print 'Found item %s (pid %s, control key %s)' % \
-                    (item_id, item.pid or '-', item.control_key)
+                print 'Found item %s (pid %s, control key %s, marc %s)' % \
+                    (item_id, item.pid or '-', item.control_key,
+                     item.marc_path)
             elif result.count == 0:
                 print 'No item found for item id %s' % item_id
+                continue
             else:
                 # shouldn't get more than one match when looking up by
                 # item id, but just in case
                 print 'Error! DigWF returned %d matches for item id %s' % \
                     (result.count, item_id)
+                continue
+
+            # returns a bagit bag object.
+            newbag = LsdiBaggee(item).create_bag(self.options.output)
+            print 'Bag created at %s' % newbag
 
     # config file section headings
     digwf_cfg = 'Digitization Workflow'

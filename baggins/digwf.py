@@ -10,8 +10,11 @@ Large Scale Digitization Initiative (LSDI) content.
     to import cover images and selected page images.
 '''
 
-import requests
+from cached_property import cached_property
 from eulxml import xmlmap
+import requests
+from pymarc import MARCReader
+import pymarc
 
 
 class Client(object):
@@ -55,22 +58,37 @@ class Item(xmlmap.XmlObject):
     currently in use.)
     '''
 
+    #: pid (noid portion of the ARK or Fedora pid)
     pid = xmlmap.StringField('@pid')
-    'pid (noid portion of the ARK or Fedora pid)'
+    #: item_id within the DigWF
     item_id = xmlmap.StringField('@id')
-    'item_id within the DigWF'
+    #: control key (e.g., ocm or ocn number in euclid; unique per book,
+    #: not per volume)
     control_key = xmlmap.StringField('@control_key')
-    'control key (e.g., ocm or ocn number in euclid; unique per book, not per volume)'
+    #: display image path
     display_image_path = xmlmap.StringField('display_images_path')
-    # do we need display images count ?
-    'display image path'
+    #: display images count
+    display_image_count = xmlmap.IntegerField('display_images_path/@count')
+    #: path to OCR files (text & word position)
     ocr_file_path = xmlmap.StringField('ocr_files_path')
-    'path to OCR files (text & word position)'
+    #: ocr file count
+    ocr_file_count = xmlmap.IntegerField('ocr_files_path/@count')
+
+    #: path to PDF file
     pdf = xmlmap.StringField('pdf_file')
-    'path to PDF file'
+    #: path to ABBYY FineReader XML file
+    ocr_file = xmlmap.StringField('ocr_file')
+    #: path to marc xml file
+    marc_path = xmlmap.StringField('marc_file')
 
     # NOTE: these mappings are incomplete, and only include what was pused
     # for readux page ingest; we will likely need to add more mappings
+
+    @cached_property
+    def marc(self):
+        # use pymarc to read the marcxml to make fields available
+        with open(self.marc_path, 'r') as marcdata:
+            return pymarc.parse_xml_to_array(marcdata)[0]
 
 
 class Items(xmlmap.XmlObject):
