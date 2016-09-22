@@ -15,13 +15,16 @@ class LsdiBagger(object):
             description='Generate bagit bags from LSDI digitized book content')
         parser.add_argument('item_ids', metavar='ID', nargs='*',
                             help='Digitization Workflow Item ID')
-        parser.add_argument('file', metavar='FILE', nargs='*',
+        parser.add_argument('file', metavar='FILE',
                             help='Digitization Workflow File With Item IDs')
         self.options = parser.parse_args()
         if not self.options.item_ids or not self.options.file:
-            print 'Please specify one or more item ids for items to process'
+            print 'Please specify item ids or a file for items to process'
             parser.print_help()
             exit()
+
+        if self.options.file:
+            self.options.item_ids = self.load_item_ids()
 
     def run(self):
         self.get_options()
@@ -32,12 +35,9 @@ class LsdiBagger(object):
         # TODO: get url from a config file
         digwf_api = Client('http://domokun.library.emory.edu:3000/digwf_api/')
         # digwf_api = Client('')
-        if self.options.item_ids:
-            item_ids = self.options.item_ids
-        else:
-            item_ids = self.load_item_ids()
 
-        for item_id in item_ids:
+
+        for item_id in self.options.item_ids:
             result = digwf_api.get_items(item_id=item_id)
             if result.count == 1:
                 item = result.items[0]
@@ -52,12 +52,15 @@ class LsdiBagger(object):
                     (result.count, item_id)
 
     def load_item_ids(self):
-        list_of_ids = []
         with open(self.options.file) as f:
-            for line in f:
-                file_list = [int(element.strip()) for element in line.split(',')]
-                list_of_ids.append(file_list)
+            list_of_ids = [x.strip('\n') for x in f.readlines()]
+            all_int = [s for s in list_of_ids if s.isdigit()]
+            if not all_int:
+                print 'All item ids should be numeric values. Check your file.'
+                exit()
 
         return list_of_ids
+
+        
 
 

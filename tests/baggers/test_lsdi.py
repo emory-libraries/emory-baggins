@@ -1,7 +1,11 @@
+import os
 from mock import patch, Mock
 import pytest
 
 from baggins.baggers.lsdi import LsdiBagger
+
+FIXTURE_DIR = os.path.join(os.path.dirname(__file__), 'fixtures')
+print 'fixture dir = ', FIXTURE_DIR
 
 
 class TestLsdiBagger:
@@ -32,3 +36,11 @@ class TestLsdiBagger:
 
     # TODO: test process_items method; current functionality is just
     # placeholder logic and will change
+
+    def test_load_item_ids(self):
+        lbag = LsdiBagger()
+        self.options.file = os.path.join(FIXTURE_DIR, 'file_ids.csv')
+        item_ids = lbag.load_item_ids()
+        all_int = [s for s in item_ids if s.isdigit()]
+
+
