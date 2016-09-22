@@ -4,6 +4,7 @@ from mock import patch, Mock
 import pytest
 import tempfile
 import os
+import sys
 import tempfile
 
 from baggins.baggers.lsdi import LsdiBagger, LsdiBaggee
@@ -44,6 +45,46 @@ class TestLsdiBagger:
         mockparser.parse_args.return_value = mockopts
         lbag.get_options()
         assert lbag.options == mockopts
+
+    def test_cli_options(self, capsys):
+        lbag = LsdiBagger()
+
+        # no item ids specified
+        testargs = ["lsdi-bagger"]
+        with patch.object(sys, 'argv', testargs):
+            with pytest.raises(SystemExit):
+                lbag.get_options()
+            output = capsys.readouterr()
+            assert 'Please specify one or more item ids for items to process' \
+                in output[0]
+
+        # generate config file
+        testargs = ["lsdi-bagger", "--generate-config", 'my-config-file.cfg']
+        with patch.object(sys, 'argv', testargs):
+            with patch.object(lbag, 'generate_configfile') as mockgen_cfg:
+                # should generate config and exit
+                with pytest.raises(SystemExit):
+                    lbag.get_options()
+                # should call generate_configfile method
+                mockgen_cfg.assert_called_once()
+                # no output because generate configfile is mocked
+
+        # item ids but no output directory
+        testargs = ["lsdi-bagger", "123", "456", "789"]
+        with patch.object(sys, 'argv', testargs):
+            with patch.object(lbag, 'load_configfile'):
+                with pytest.raises(SystemExit):
+                    lbag.get_options()
+            output = capsys.readouterr()
+            assert 'Please specify output directory' in output[0]
+
+        # load specified config file
+        test_cfgfile = os.path.join(FIXTURE_DIR, 'lsdi-bagger.cfg')
+        testargs = ["lsdi-bagger", "123", "456", "-c", test_cfgfile]
+        with patch.object(sys, 'argv', testargs):
+            lbag.get_options()
+            assert lbag.options.output == '/tmp/bags'
+            assert lbag.options.digwf_url == 'http://example.co:3100/digwf_api/'
 
     # tests for config parser logic (creation, loading, etc)
 
@@ -151,7 +192,7 @@ def lsdibag():
 
 
 @pytest.mark.usefixtures("lsdibag", "tmpdir")
-class TestLsdiBagger:
+class TestLsdiBaggee:
 
     def test_object_id(self, lsdibag):
         # pid if present
