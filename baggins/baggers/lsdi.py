@@ -243,7 +243,10 @@ class LsdiBagger(object):
             self.options.output = cfg.get(self.filepaths_cfg, 'output')
 
     def load_item_ids(self):
-        with open(self.options.file) as f:
-            list_of_ids = [x.strip('\n') for x in f.readlines()]
-        return list_of_ids
+        try:
+            with open(self.options.file) as f:
+                list_of_ids = [x.strip('\n') for x in f.readlines()]
+            return list_of_ids
+        except IOError:
+            print "Unable to load specified csv file"
 
