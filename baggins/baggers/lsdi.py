@@ -32,6 +32,64 @@ class LsdiBaggee(bag.Baggee):
         '''Object title for bag name: use title from MARC xml'''
         return self.item.marc.title()
 
+    def source_organization(self):
+        '''Object source organization for the bag'''
+
+        # where do we get source organization from XML or external file?
+        return self.item.source_organization()
+
+    def source_organization_address(self):
+        '''Object source organization address for the bag'''
+
+        # where do we get source organization address from XML or external file?
+        return self.item.source_organization_address()
+
+    def contact_name(self):
+        '''Object contact name for the bag'''
+
+        # where do we get contact name from XML or external file?
+        return self.item.contact_name()
+
+    
+    def contact_phone(self):
+        '''Object contact phone for the bag'''
+
+        # where do we get contact phone from XML or external file?
+        return self.item.contact_name()
+
+    def contact_email(self):
+        '''Object contact phone for the bag'''
+
+        # where do we get contact phone from XML or external file?
+        return self.item.contact_email()
+
+    def external_description(self):
+        '''Object external description for the bag: use description from MARC xml'''
+
+        return self.item.external_description()
+
+    def external_identifier(self):
+        '''Object external identifier for the bag: use objectid-objectname'''
+
+        return self.item.external_identifier()
+
+    def bagging_date(self):
+        '''Object bagging date: script generated date'''
+
+        return self.item.bagging_date()
+
+    def bag_size(self):
+        '''Object size: script generated'''
+
+        return self.item.bag_size()
+
+    def bag_group_identifier(self):
+        '''Bag group identifier: use description from MARC xml'''
+
+        # where do we get contact phone from XML or external file?
+        return self.item.bag_group_identifier()
+
+
     def data_files(self):
         '''List of data files to be included in the bag.  PDF, OCR xml,
         page images, and page text/position files.'''
@@ -186,6 +244,10 @@ class LsdiBagger(object):
 
             # returns a bagit bag object.
             newbag = LsdiBaggee(item).create_bag(self.options.output)
+
+            # generate source organization summaary for this bag
+            self.load_source_summary(newbag)
+
             print 'Bag created at %s' % newbag
 
     # config file section headings
@@ -249,4 +311,41 @@ class LsdiBagger(object):
             return list_of_ids
         except IOError:
             print "Unable to load specified csv file"
+
+
+    def load_source_summary(self, bag):
+        summary_path = self.generate_bag_info_file()
+        summary_list = []
+        with open(summary_path, 'w') as summaryfile:
+            summary_list[0] = "Source-Organization: " + bag.source_organization()
+            summary_list[1] = "Organization-Address" + bag.organization_address()
+            summary_list[2] = "Contact-Name: " + bag.contact_name()
+            summary_list[3] = "Contact-Phone: " + bag.contact_phone()
+            summary_list[4] = "Contact-Email: " + bag.contact_email()
+            summary_list[5] = "External-Description: " + bag.external_description()
+            summary_list[6] = "Bagging-Date: " + bag.bagging_date()
+            summary_list[7] = "External-Identifier: " + bag.external_identifier()
+            summary_list[8] = "Bag-Size: " + bag.bag_size()
+            summary_list[9] = "Bag-Group-Identifier: " + bag.bag_group_identifier()
+
+        for summary_item in summary_list:
+            summaryfile.write(summary_item)
+
+
+
+
+    def generate_bag_info_file(self):
+        # generate an empty summary file
+        summary_path = os.environ['HOME'] + '/bag-info.txt'
+        with open(summary_path, 'w') as summaryfile:
+            config.write(summaryfile)
+        print 'Bag info file created at %s' % summary_path
+        return summary_path
+
+
+
+
+
+
+
 

@@ -391,7 +391,35 @@ class TestLsdiBaggee:
     # placeholder logic and will change
 
     def test_load_item_ids(self):
+        fake_fixture = 'fakefile_ids.csv'
+        true_fixture = 'file_ids.csv'
         lbag = LsdiBagger()
-        self.options.file = os.path.join(FIXTURE_DIR, 'file_ids.csv')
-        item_ids = lbag.load_item_ids()
+        lbag.get_options()
+        # nonexistent file
+        
+        self.options.file = os.path.join(FIXTURE_DIR, fake_fixture)
+        with pytest.raises(SystemExit):
+            lbag.load_item_ids()
 
+        output = capsys.readouterr()
+        assert output[0] == 'Unable to load specified csv file' 
+
+        self.options.file = os.path.join(FIXTURE_DIR, true_fixture)
+        item_ids = lbag.load_item_ids()
+        for item_id in item_ids:
+            with open(self.options.file) as f:
+                for x in f.readlines():
+                    assert item_id == x.strip('\n')
+
+    def test_generate_source_summary(self):
+        fixture = 'collections_sourceorganizations.txt'
+        lbag = LsdiBagger()
+        
+        source_data = os.path.join(FIXTURE_DIR, fixture)
+        source_summary = lbag.generate_source_summary(source_data)
+
+        for item_id in item_ids:
+            with open(self.options.file) as f:
+                for x in f.readlines():
+                    assert item_id == x.strip('\n')
+                
