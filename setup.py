@@ -29,6 +29,10 @@ CLASSIFIERS = [
 requirements = [
     'eulxml',
     'requests',
+    'pymarc',
+    'bagit',
+    'cached-property',
+    'awesome-slugify',
 ]
 
 test_requirements = ['pytest', 'pytest-cov', 'mock']

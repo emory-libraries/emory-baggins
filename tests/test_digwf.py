@@ -7,7 +7,6 @@ from baggins import digwf
 
 
 FIXTURE_DIR = os.path.join(os.path.dirname(__file__), 'fixtures')
-print 'fixture dir = ', FIXTURE_DIR
 
 
 class TestDigwfClient:
@@ -43,6 +42,11 @@ class TestDigwfClient:
             mockrequests.get.assert_called_with(
                 expected_url, params={'item_id': item_id})
 
+            # error response should raise an exception
+            mockrequests.get.return_value.status_code = 400
+            result = digwf_client.get_items(item_id=item_id)
+            mockrequests.get.return_value.raise_for_status.assert_called_once()
+
     def test_items_xml(self):
         # basic inspection of sample result / xml mapping
         response = load_xmlobject_from_file(self.item_response, digwf.Items)
@@ -55,8 +59,12 @@ class TestDigwfClient:
         assert item.item_id == '3031'
         assert item.control_key == 'ocm08951025'
         assert item.display_image_path == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output'
+        assert item.display_image_count == 2218
         assert item.ocr_file_path == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output'
+        assert item.ocr_file_count == 2218
         assert item.pdf == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output/Output.pdf'
+        assert item.marc_path == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/ocm08951025_MRC.xml'
+        assert item.ocr_file == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output/Output.xml'
 
         response = load_xmlobject_from_file(self.empty_response, digwf.Items)
         assert response.count == 0
