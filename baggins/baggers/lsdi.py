@@ -15,7 +15,7 @@ class LsdiBagger(object):
             description='Generate bagit bags from LSDI digitized book content')
         parser.add_argument('item_ids', metavar='ID', nargs='*',
                             help='Digitization Workflow Item ID')
-        parser.add_argument('file', metavar='FILE',
+        parser.add_argument('file', '-f', '-file', metavar='FILE',
                             help='Digitization Workflow File With Item IDs')
         self.options = parser.parse_args()
         if not self.options.item_ids or not self.options.file:
@@ -54,11 +54,6 @@ class LsdiBagger(object):
     def load_item_ids(self):
         with open(self.options.file) as f:
             list_of_ids = [x.strip('\n') for x in f.readlines()]
-            all_int = [s for s in list_of_ids if s.isdigit()]
-            if not all_int:
-                print 'All item ids should be numeric values. Check your file.'
-                exit()
-
         return list_of_ids
 
         

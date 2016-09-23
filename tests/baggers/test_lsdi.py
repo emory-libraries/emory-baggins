@@ -41,6 +41,6 @@ class TestLsdiBagger:
         lbag = LsdiBagger()
         self.options.file = os.path.join(FIXTURE_DIR, 'file_ids.csv')
         item_ids = lbag.load_item_ids()
-        all_int = [s for s in item_ids if s.isdigit()]
+        
 
 
