@@ -41,6 +41,14 @@ class Baggee(object):
         '''List of files to be included in the bag as payload content.'''
         return []
 
+    def descriptive_metadata(self):
+        '''List of files to be included in the bag as descriptive metadata
+         content.'''
+        return []
+
+    # internal methods that probably shouldn't be extended for most
+    # use cases
+
     def file_title(self):
         '''Convert object title to a format for use in the bag filename.
         Name is slugified, and then truncated to :attr:`title_length`
@@ -78,7 +86,7 @@ class Baggee(object):
         objectid-objectname.'''
         return '%s-%s' % (self.object_id(), self.file_title())
 
-    def copy_data_files(self, bagdir):
+    def add_data_files(self, bagdir):
         '''Copy data files into the bag staging directory.'''
         for datafile in self.data_files():
             # use copy2 to preserve original file statistics
@@ -91,13 +99,34 @@ class Baggee(object):
             # need revision at a later point.
             os.chmod(os.path.join(bagdir, datafile_base), 0664)
 
+    def add_descriptive_metadata(self, bagdir):
+        metadata_dir = os.path.join(bagdir, 'metadata', 'descriptive')
+        os.makedirs(metadata_dir)
+        for mdata_file in self.descriptive_metadata():
+            shutil.copy2(mdata_file, metadata_dir)
+            # perms possibly not needed for metadata, since bagit
+            # doesn't have to move it
+            # mdata_base = os.path.basename(mdata_file)
+            # os.chmod(os.path.join(metadata_dir, mdata_base), 0664)
+
     def create_bag(self, basedir):
         '''Create a bagit bag for this item.'''
         bagdir = os.path.join(basedir, self.bag_name())
         os.mkdir(bagdir)
 
         # add data to the bag
-        self.copy_data_files(bagdir)
+        self.add_data_files(bagdir)
+        # ** add metadata **
 
+        # NOTE: emory bagit spec calls for metadata content to be
+        # included as "tag" files outside of the data directory, but
+        # python-bagit doesn't seem to support generating tag manifests
+        # that include those files.  If we include them that way,
+        # then the bag would be valid with or without that content.
+
+        # descriptive metadata
+        self.add_descriptive_metadata(bagdir)
+
+        # create the bag
         bag = bagit.make_bag(bagdir, checksum=self.checksum_algorithms)
         return bag

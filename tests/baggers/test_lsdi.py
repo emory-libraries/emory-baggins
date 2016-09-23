@@ -383,3 +383,5 @@ class TestLsdiBaggee:
                 for txtfile in mock_txtfiles.return_value:
                     assert txtfile in datafiles
 
+    def test_descriptive_metadata(self, lsdibag):
+        assert lsdibag.item.marc_path in lsdibag.descriptive_metadata()
