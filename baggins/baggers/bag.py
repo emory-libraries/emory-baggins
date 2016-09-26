@@ -114,19 +114,31 @@ class Baggee(object):
         bagdir = os.path.join(basedir, self.bag_name())
         os.mkdir(bagdir)
 
-        # add data to the bag
+        # add payload  data to the bag
         self.add_data_files(bagdir)
+
         # ** add metadata **
 
         # NOTE: emory bagit spec calls for metadata content to be
         # included as "tag" files outside of the data directory, but
-        # python-bagit doesn't seem to support generating tag manifests
-        # that include those files.  If we include them that way,
-        # then the bag would be valid with or without that content.
+        # python-bagit doesn't currently support generating tag manifests
+        # for optional tag files in subdirectories.  For details, see
+        # https://github.com/LibraryOfCongress/bagit-python/issues/68
+        # for the discussion and
+        # https://github.com/LibraryOfCongress/bagit-python/pull/69
+        # for the fix.  Once a new release is available with the fix,
+        # we should require that minimu version and update the logic here
 
         # descriptive metadata
         self.add_descriptive_metadata(bagdir)
 
         # create the bag
         bag = bagit.make_bag(bagdir, checksum=self.checksum_algorithms)
+
+        # NOTE: to add metadata as tag files (once there is a version of
+        # python-bagit that supports it), add the tagfile content to the
+        # bag directories here, and then re-save the bag, which should
+        # update the tag-manifests appropriately.  (Also update unit
+        # tests to check that the manifests are generated as expected.)
+
         return bag
