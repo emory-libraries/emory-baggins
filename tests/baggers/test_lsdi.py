@@ -39,7 +39,7 @@ class TestLsdiBagger:
         # check captured output
         output = capsys.readouterr()
         assert output[0] == \
-            'Please specify one or more item ids for items to process\n'
+            'Please specify item ids or a file for items to process\n'
 
         mockargparse.ArgumentParser.assert_called_once()
         mockparser.parse_args.assert_called_once()
@@ -59,7 +59,7 @@ class TestLsdiBagger:
             with pytest.raises(SystemExit):
                 lbag.get_options()
             output = capsys.readouterr()
-            assert 'Please specify one or more item ids for items to process' \
+            assert 'Please specify item ids or a file for items to process' \
                 in output[0]
 
         # generate config file
@@ -399,7 +399,7 @@ class TestLsdiBaggee:
         lbag.options.file = os.path.join(FIXTURE_DIR, fake_fixture)
         
         # raises error when there is no file provided
-        with pytest.raises(Exception):
+        with pytest.raises(IOError):
             lbag.load_item_ids()
 
         lbag.options.file = os.path.join(FIXTURE_DIR, true_fixture)
@@ -411,17 +411,6 @@ class TestLsdiBaggee:
                     if idn == idx:
                         assert int(item_id) == int(x.strip('\n'))
 
-    # def test_generate_source_summary(self):
-    #     fixture = 'collections_sourceorganizations.txt'
-    #     lbag = LsdiBagger()
-        
-    #     source_data = os.path.join(FIXTURE_DIR, fixture)
-    #     source_summary = lbag.generate_source_summary(source_data)
-
-    #     for item_id in item_ids:
-    #         with open(self.options.file) as f:
-    #             for x in f.readlines():
-    #                 assert item_id == x.strip('\n')
                 
     def test_descriptive_metadata(self, lsdibag):
         assert lsdibag.item.marc_path in lsdibag.descriptive_metadata()

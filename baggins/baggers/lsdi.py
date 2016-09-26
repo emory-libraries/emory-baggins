@@ -109,7 +109,7 @@ class LsdiBagger(object):
         parser.add_argument('item_ids', metavar='ITEM_IDS', nargs='*',
                             help='Digitization Workflow Item ID')
 
-        parser.add_argument('-f', '-file', metavar='FILE',
+        parser.add_argument('-f', '--file', metavar='FILE',
                             help='Digitization Workflow File With Item IDs')
 
 
@@ -128,7 +128,7 @@ class LsdiBagger(object):
         # parse command line arguments
         self.options = parser.parse_args()
 
-        if not self.options.item_ids or not self.options.file:
+        if not self.options.item_ids and not self.options.file:
             print 'Please specify item ids or a file for items to process'
             parser.print_help()
             exit()
@@ -252,36 +252,6 @@ class LsdiBagger(object):
             return list_of_ids
         except IOError:
             print "Unable to load specified csv file"
-
-
-    # def load_source_summary(self, bag):
-    #     summary_path = self.generate_bag_info_file()
-    #     summary_list = []
-    #     with open(summary_path, 'w') as summaryfile:
-    #         summary_list[0] = "Source-Organization: " + bag.source_organization()
-    #         summary_list[1] = "Organization-Address" + bag.organization_address()
-    #         summary_list[2] = "Contact-Name: " + bag.contact_name()
-    #         summary_list[3] = "Contact-Phone: " + bag.contact_phone()
-    #         summary_list[4] = "Contact-Email: " + bag.contact_email()
-    #         summary_list[5] = "External-Description: " + bag.external_description()
-    #         summary_list[6] = "Bagging-Date: " + bag.bagging_date()
-    #         summary_list[7] = "External-Identifier: " + bag.external_identifier()
-    #         summary_list[8] = "Bag-Size: " + bag.bag_size()
-    #         summary_list[9] = "Bag-Group-Identifier: " + bag.bag_group_identifier()
-
-    #     for summary_item in summary_list:
-    #         summaryfile.write(summary_item)
-
-
-
-
-    # def generate_bag_info_file(self):
-    #     # generate an empty summary file
-    #     summary_path = os.environ['HOME'] + '/bag-info.txt'
-    #     with open(summary_path, 'w') as summaryfile:
-    #         config.write(summaryfile)
-    #     print 'Bag info file created at %s' % summary_path
-    #     return summary_path
 
 
 

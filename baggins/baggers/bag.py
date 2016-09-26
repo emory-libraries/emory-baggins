@@ -37,6 +37,10 @@ class Baggee(object):
         if getattr(self, 'title', None):
             return getattr(self, 'title')
 
+    def bag_info(self):
+
+        return {}
+
     def data_files(self):
         '''List of files to be included in the bag as payload content.'''
         return []
@@ -109,7 +113,7 @@ class Baggee(object):
             # mdata_base = os.path.basename(mdata_file)
             # os.chmod(os.path.join(metadata_dir, mdata_base), 0664)
 
-    def create_bag(self, basedir):
+    def create_bag(self, basedir, baginfo=bag_info()):
         '''Create a bagit bag for this item.'''
         bagdir = os.path.join(basedir, self.bag_name())
         os.mkdir(bagdir)
@@ -133,7 +137,7 @@ class Baggee(object):
         self.add_descriptive_metadata(bagdir)
 
         # create the bag
-        bag = bagit.make_bag(bagdir, checksum=self.checksum_algorithms)
+        bag = bagit.make_bag(bagdir, baginfo, checksum=self.checksum_algorithms)
 
         # NOTE: to add metadata as tag files (once there is a version of
         # python-bagit that supports it), add the tagfile content to the
@@ -142,52 +146,3 @@ class Baggee(object):
         # tests to check that the manifests are generated as expected.)
 
         return bag
-
-class BagInfo(Baggee):
-
-    def source_organization(self):
-        '''Object source organization for the bag'''
-
-        # where do we get source organization from XML or external file?
-        return self.item.source_organization()
-
-    def source_organization_address(self):
-        '''Object source organization address for the bag'''
-
-        # where do we get source organization address from XML or external file?
-        return self.item.source_organization_address()
-
-    def contact_name(self):
-        '''Object contact name for the bag'''
-
-        # where do we get contact name from XML or external file?
-        return self.item.contact_name()
-
-    
-    def contact_phone(self):
-        '''Object contact phone for the bag'''
-
-        # where do we get contact phone from XML or external file?
-        return self.item.contact_name()
-
-    def contact_email(self):
-        '''Object contact phone for the bag'''
-
-        # where do we get contact phone from XML or external file?
-        return self.item.contact_email()
-
-    def external_description(self):
-        '''Object external description for the bag: use description from MARC xml'''
-
-        return self.item.external_description()
-
-    def external_identifier(self):
-        '''Object external identifier for the bag: use objectid-objectname'''
-
-        return self.item.external_identifier()
-
-    def bag_group_identifier(self):
-        '''Bag group identifier: use description from MARC xml'''
-
-        # where do we get contact phone from XML or external file?
-        return self.item.bag_group_identifier()
