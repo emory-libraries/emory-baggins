@@ -1,2 +1,64 @@
-<?xml version="1.0" encoding="utf-8"?><testsuite errors="0" failures="0" name="pytest" skips="0" tests="4" time="0.361"><testcase classname="tests.test_digwf.TestDigwfClient" file="tests/test_digwf.py" line="17" name="test_init" time="0.000773191452026"></testcase><testcase classname="tests.test_digwf.TestDigwfClient" file="tests/test_digwf.py" line="24" name="test_get_items" time="0.00262904167175"></testcase><testcase classname="tests.test_digwf.TestDigwfClient" file="tests/test_digwf.py" line="45" name="test_items_xml" time="0.00166463851929"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="8" name="test_get_options" time="0.00395703315735"><system-out>Please specify one or more item ids for items to process
+<?xml version="1.0" encoding="utf-8"?><testsuite errors="0" failures="2" name="pytest" skips="0" tests="24" time="0.789"><testcase classname="tests.test_digwf.TestDigwfClient" file="tests/test_digwf.py" line="16" name="test_init" time="0.00050687789917"></testcase><testcase classname="tests.test_digwf.TestDigwfClient" file="tests/test_digwf.py" line="23" name="test_get_items" time="0.00234198570251"></testcase><testcase classname="tests.test_digwf.TestDigwfClient" file="tests/test_digwf.py" line="49" name="test_items_xml" time="0.00114107131958"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="31" name="test_object_id" time="0.00414824485779"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="35" name="test_file_title" time="0.0010838508606"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="46" name="test_bag_name" time="0.00102686882019"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="49" name="test_copy_data_files" time="0.0014967918396"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="60" name="test_create_bag" time="0.0700352191925"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="25" name="test_get_options" time="0.00269603729248"><failure message="AttributeError: &apos;Namespace&apos; object has no attribute &apos;item_ids&apos;">self = &lt;test_lsdi.TestLsdiBagger instance at 0x10fa5d098&gt;, mockargparse = &lt;MagicMock name=&apos;argparse&apos; id=&apos;4557001744&apos;&gt;
+capsys = &lt;_pytest.capture.CaptureFixture instance at 0x10fa5d518&gt;
+
+    @patch(&apos;baggins.baggers.lsdi.argparse&apos;)
+    def test_get_options(self, mockargparse, capsys):
+        mockparser = mockargparse.ArgumentParser.return_value
+    
+        mockopts = Mock(item_ids=[], gen_config=False)
+        mockopts.config = self.test_config
+        mockparser.parse_args.return_value = mockopts
+    
+        lbag = LsdiBagger()
+        # no items specified - should exit
+        with pytest.raises(SystemExit):
+&gt;           lbag.get_options()
+
+tests/baggers/test_lsdi.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;baggins.baggers.lsdi.LsdiBagger object at 0x10f9e4d90&gt;
+
+    def get_options(self):
+        parser = argparse.ArgumentParser(
+            description=&apos;Generate bagit bags from LSDI digitized book content&apos;)
+        parser.add_argument(&apos;item_ids&apos;, metavar=&apos;ITEM_IDS&apos;, nargs=&apos;*&apos;,
+                            help=&apos;Digitization Workflow Item ID&apos;)
+    
+        parser.add_argument(&apos;-f&apos;, &apos;-file&apos;, metavar=&apos;FILE&apos;,
+                            help=&apos;Digitization Workflow File With Item IDs&apos;)
+    
+&gt;       if not self.options.item_ids or not self.options.file:
+E       AttributeError: &apos;Namespace&apos; object has no attribute &apos;item_ids&apos;
+
+baggins/baggers/lsdi.py:111: AttributeError</failure></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="52" name="test_cli_options" time="0.00193285942078"><failure message="AttributeError: &apos;Namespace&apos; object has no attribute &apos;item_ids&apos;">self = &lt;test_lsdi.TestLsdiBagger instance at 0x10fa54200&gt;, capsys = &lt;_pytest.capture.CaptureFixture instance at 0x10fa5d5f0&gt;
+
+    def test_cli_options(self, capsys):
+        lbag = LsdiBagger()
+    
+        # no item ids specified
+        testargs = [&quot;lsdi-bagger&quot;]
+        with patch.object(sys, &apos;argv&apos;, testargs):
+            with pytest.raises(SystemExit):
+&gt;               lbag.get_options()
+
+tests/baggers/test_lsdi.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;baggins.baggers.lsdi.LsdiBagger object at 0x10f9f4390&gt;
+
+    def get_options(self):
+        parser = argparse.ArgumentParser(
+            description=&apos;Generate bagit bags from LSDI digitized book content&apos;)
+        parser.add_argument(&apos;item_ids&apos;, metavar=&apos;ITEM_IDS&apos;, nargs=&apos;*&apos;,
+                            help=&apos;Digitization Workflow Item ID&apos;)
+    
+        parser.add_argument(&apos;-f&apos;, &apos;-file&apos;, metavar=&apos;FILE&apos;,
+                            help=&apos;Digitization Workflow File With Item IDs&apos;)
+    
+&gt;       if not self.options.item_ids or not self.options.file:
+E       AttributeError: &apos;Namespace&apos; object has no attribute &apos;item_ids&apos;
+
+baggins/baggers/lsdi.py:111: AttributeError</failure></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="94" name="test_setup_configparser" time="0.000829935073853"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="106" name="test_generate_configfile" time="0.0106070041656"><system-out>Config file created at /var/folders/rd/b_q2khss4mn8pnwny07hh8nn1nd_w_/T/tmp2_GvCX
+</system-out></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="134" name="test_load_configfile_valid" time="0.00103211402893"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="151" name="test_load_configfile_nonexistent" time="0.000994920730591"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="167" name="test_load_configfile_empty" time="0.00123906135559"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="182" name="test_process_multiple_items" time="0.00209403038025"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="201" name="test_process_items_toomany" time="0.00182199478149"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="215" name="test_process_items_valid" time="0.00212025642395"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="264" name="test_object_id" time="0.00148725509644"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="271" name="test_object_title" time="0.00529599189758"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="276" name="test_image_files" time="0.0099413394928"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="332" name="test_page_text_files" time="0.00525093078613"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="366" name="test_data_files" time="0.00190210342407"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="392" name="test_load_item_ids" time="0.00344491004944"><system-out>[&apos;1&apos;, &apos;2&apos;, &apos;3&apos;, &apos;4&apos;, &apos;5&apos;, &apos;6&apos;, &apos;7&apos;, &apos;12&apos;, &apos;23&apos;, &apos;34&apos;, &apos;45&apos;, &apos;56&apos;, &apos;67&apos;, &apos;98&apos;, &apos;21&apos;, &apos;32&apos;, &apos;43&apos;, &apos;54&apos;, &apos;65&apos;, &apos;76&apos;, &apos;87&apos;, &apos;98&apos;]
 </system-out></testcase></testsuite>

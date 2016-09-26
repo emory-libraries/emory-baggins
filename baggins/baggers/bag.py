@@ -101,3 +101,52 @@ class Baggee(object):
 
         bag = bagit.make_bag(bagdir, checksum=self.checksum_algorithms)
         return bag
+
+class BagInfo(Baggee):
+
+    def source_organization(self):
+        '''Object source organization for the bag'''
+
+        # where do we get source organization from XML or external file?
+        return self.item.source_organization()
+
+    def source_organization_address(self):
+        '''Object source organization address for the bag'''
+
+        # where do we get source organization address from XML or external file?
+        return self.item.source_organization_address()
+
+    def contact_name(self):
+        '''Object contact name for the bag'''
+
+        # where do we get contact name from XML or external file?
+        return self.item.contact_name()
+
+    
+    def contact_phone(self):
+        '''Object contact phone for the bag'''
+
+        # where do we get contact phone from XML or external file?
+        return self.item.contact_name()
+
+    def contact_email(self):
+        '''Object contact phone for the bag'''
+
+        # where do we get contact phone from XML or external file?
+        return self.item.contact_email()
+
+    def external_description(self):
+        '''Object external description for the bag: use description from MARC xml'''
+
+        return self.item.external_description()
+
+    def external_identifier(self):
+        '''Object external identifier for the bag: use objectid-objectname'''
+
+        return self.item.external_identifier()
+
+    def bag_group_identifier(self):
+        '''Bag group identifier: use description from MARC xml'''
+
+        # where do we get contact phone from XML or external file?
+        return self.item.bag_group_identifier()

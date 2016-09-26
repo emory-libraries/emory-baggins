@@ -394,32 +394,32 @@ class TestLsdiBaggee:
         fake_fixture = 'fakefile_ids.csv'
         true_fixture = 'file_ids.csv'
         lbag = LsdiBagger()
-        lbag.get_options()
         # nonexistent file
         
-        self.options.file = os.path.join(FIXTURE_DIR, fake_fixture)
-        with pytest.raises(SystemExit):
+        lbag.options.file = os.path.join(FIXTURE_DIR, fake_fixture)
+        
+        # raises error when there is no file provided
+        with pytest.raises(Exception):
             lbag.load_item_ids()
 
-        output = capsys.readouterr()
-        assert output[0] == 'Unable to load specified csv file' 
-
-        self.options.file = os.path.join(FIXTURE_DIR, true_fixture)
+        lbag.options.file = os.path.join(FIXTURE_DIR, true_fixture)
         item_ids = lbag.load_item_ids()
-        for item_id in item_ids:
-            with open(self.options.file) as f:
-                for x in f.readlines():
-                    assert item_id == x.strip('\n')
+        print item_ids
+        for idx, item_id in enumerate(item_ids):
+            with open(lbag.options.file) as f:
+                for idn, x in enumerate(f.readlines()):
+                    if idn == idx:
+                        assert int(item_id) == int(x.strip('\n'))
 
-    def test_generate_source_summary(self):
-        fixture = 'collections_sourceorganizations.txt'
-        lbag = LsdiBagger()
+    # def test_generate_source_summary(self):
+    #     fixture = 'collections_sourceorganizations.txt'
+    #     lbag = LsdiBagger()
         
-        source_data = os.path.join(FIXTURE_DIR, fixture)
-        source_summary = lbag.generate_source_summary(source_data)
+    #     source_data = os.path.join(FIXTURE_DIR, fixture)
+    #     source_summary = lbag.generate_source_summary(source_data)
 
-        for item_id in item_ids:
-            with open(self.options.file) as f:
-                for x in f.readlines():
-                    assert item_id == x.strip('\n')
+    #     for item_id in item_ids:
+    #         with open(self.options.file) as f:
+    #             for x in f.readlines():
+    #                 assert item_id == x.strip('\n')
                 
