@@ -32,6 +32,10 @@ class LsdiBaggee(bag.Baggee):
         '''Object title for bag name: use title from MARC xml'''
         return self.item.marc.title()
 
+    def descriptive_metadata(self):
+        '''List of descriptive metadata files to be included in the bag.
+        Currently only includes MARC XML.'''
+        return [self.item.marc_path]
 
     def data_files(self):
         '''List of data files to be included in the bag.  PDF, OCR xml,

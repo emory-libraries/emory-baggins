@@ -423,3 +423,6 @@ class TestLsdiBaggee:
     #             for x in f.readlines():
     #                 assert item_id == x.strip('\n')
                 
+    def test_descriptive_metadata(self, lsdibag):
+        assert lsdibag.item.marc_path in lsdibag.descriptive_metadata()
+
