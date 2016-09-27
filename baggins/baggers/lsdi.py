@@ -37,6 +37,10 @@ class LsdiBaggee(bag.Baggee):
         Currently only includes MARC XML.'''
         return [self.item.marc_path]
 
+    def bag_info(self):
+        '''Dictionary of info about the bag'''
+        return self.item.bag_info()
+
     def data_files(self):
         '''List of data files to be included in the bag.  PDF, OCR xml,
         page images, and page text/position files.'''

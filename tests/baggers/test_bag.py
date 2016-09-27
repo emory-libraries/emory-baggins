@@ -21,6 +21,10 @@ class SampleBaggee(Baggee):
     def __init__(self):
         self.files = []
         self.desc_metadata = []
+        self.bag_info = {}
+
+    def bag_info(self):
+        return self.bag_info
 
     def data_files(self):
         return self.files

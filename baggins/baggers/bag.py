@@ -38,7 +38,8 @@ class Baggee(object):
             return getattr(self, 'title')
 
     def bag_info(self):
-
+        '''Object bag info. Default implementation: returns dictionary info.
+        '''
         return {}
 
     def data_files(self):
@@ -113,7 +114,7 @@ class Baggee(object):
             # mdata_base = os.path.basename(mdata_file)
             # os.chmod(os.path.join(metadata_dir, mdata_base), 0664)
 
-    def create_bag(self, basedir, baginfo=bag_info()):
+    def create_bag(self, basedir):
         '''Create a bagit bag for this item.'''
         bagdir = os.path.join(basedir, self.bag_name())
         os.mkdir(bagdir)
@@ -137,7 +138,7 @@ class Baggee(object):
         self.add_descriptive_metadata(bagdir)
 
         # create the bag
-        bag = bagit.make_bag(bagdir, baginfo, checksum=self.checksum_algorithms)
+        bag = bagit.make_bag(bagdir, self.bag_info(), checksum=self.checksum_algorithms)
 
         # NOTE: to add metadata as tag files (once there is a version of
         # python-bagit that supports it), add the tagfile content to the
