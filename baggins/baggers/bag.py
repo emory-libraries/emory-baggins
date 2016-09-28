@@ -138,7 +138,7 @@ class Baggee(object):
         self.add_descriptive_metadata(bagdir)
 
         # create the bag
-        bag = bagit.make_bag(bagdir, self.bag_info(), checksum=self.checksum_algorithms)
+        bag = bagit.make_bag(bagdir, self.bag_info, checksum=self.checksum_algorithms)
 
         # NOTE: to add metadata as tag files (once there is a version of
         # python-bagit that supports it), add the tagfile content to the

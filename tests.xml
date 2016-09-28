@@ -1,46 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><testsuite errors="0" failures="3" name="pytest" skips="0" tests="26" time="0.823"><testcase classname="tests.test_digwf.TestDigwfClient" file="tests/test_digwf.py" line="16" name="test_init" time="0.000548839569092"></testcase><testcase classname="tests.test_digwf.TestDigwfClient" file="tests/test_digwf.py" line="23" name="test_get_items" time="0.00199794769287"></testcase><testcase classname="tests.test_digwf.TestDigwfClient" file="tests/test_digwf.py" line="49" name="test_items_xml" time="0.00122833251953"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="42" name="test_object_id" time="0.00390195846558"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="46" name="test_file_title" time="0.00127387046814"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="57" name="test_bag_name" time="0.00101613998413"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="60" name="test_add_data_files" time="0.0012800693512"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="71" name="test_add_descriptive_metadata" time="0.00608515739441"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="80" name="test_create_bag" time="0.0526561737061"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="25" name="test_get_options" time="0.0171890258789"><failure message="TypeError: coercing to Unicode: need string or buffer, Mock found">self = &lt;test_lsdi.TestLsdiBagger instance at 0x110a0f680&gt;, mockargparse = &lt;MagicMock name=&apos;argparse&apos; id=&apos;4573898128&apos;&gt;
-capsys = &lt;_pytest.capture.CaptureFixture instance at 0x110a0fd40&gt;
-
-    @patch(&apos;baggins.baggers.lsdi.argparse&apos;)
-    def test_get_options(self, mockargparse, capsys):
-        mockparser = mockargparse.ArgumentParser.return_value
-    
-        mockopts = Mock(item_ids=[], gen_config=False)
-        mockopts.config = self.test_config
-        mockparser.parse_args.return_value = mockopts
-    
-        lbag = LsdiBagger()
-        # no items specified - should exit
-        with pytest.raises(SystemExit):
-            lbag.get_options()
-    
-        # check captured output
-        output = capsys.readouterr()
-        assert output[0] == \
-            &apos;Please specify item ids or a file for items to process\n&apos;
-    
-        mockargparse.ArgumentParser.assert_called_once()
-        mockparser.parse_args.assert_called_once()
-        mockparser.print_help.assert_called_once()
-    
-        mockopts.item_ids = [3031]
-        mockparser.parse_args.return_value = mockopts
-&gt;       lbag.get_options()
-
-tests/baggers/test_lsdi.py:50: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-baggins/baggers/lsdi.py:137: in get_options
-    self.options.item_ids = self.load_item_ids()
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
-self = &lt;baggins.baggers.lsdi.LsdiBagger object at 0x110a0ad10&gt;
-
-    def load_item_ids(self):
-        try:
-&gt;           with open(self.options.file) as f:
-E           TypeError: coercing to Unicode: need string or buffer, Mock found
-
-baggins/baggers/lsdi.py:250: TypeError</failure></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="52" name="test_cli_options" time="0.00992703437805"><failure message="AssertionError: Expected &apos;generate_configfile&apos; to have been called once. Called 0 times.">self = &lt;test_lsdi.TestLsdiBagger instance at 0x1104bd368&gt;, capsys = &lt;_pytest.capture.CaptureFixture instance at 0x110a7c1b8&gt;
+<?xml version="1.0" encoding="utf-8"?><testsuite errors="0" failures="1" name="pytest" skips="0" tests="26" time="0.788"><testcase classname="tests.test_digwf.TestDigwfClient" file="tests/test_digwf.py" line="16" name="test_init" time="0.00045371055603"></testcase><testcase classname="tests.test_digwf.TestDigwfClient" file="tests/test_digwf.py" line="23" name="test_get_items" time="0.00234007835388"></testcase><testcase classname="tests.test_digwf.TestDigwfClient" file="tests/test_digwf.py" line="49" name="test_items_xml" time="0.00117897987366"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="46" name="test_object_id" time="0.00499868392944"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="50" name="test_file_title" time="0.000956058502197"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="61" name="test_bag_name" time="0.000749111175537"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="64" name="test_add_data_files" time="0.00133776664734"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="75" name="test_add_descriptive_metadata" time="0.00557374954224"></testcase><testcase classname="tests.baggers.test_bag.TestBaggee" file="tests/baggers/test_bag.py" line="84" name="test_create_bag" time="0.0856680870056"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="25" name="test_get_options" time="0.00522804260254"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="52" name="test_cli_options" time="0.0122442245483"><failure message="AssertionError: Expected &apos;generate_configfile&apos; to have been called once. Called 0 times.">self = &lt;test_lsdi.TestLsdiBagger instance at 0x10986dab8&gt;, capsys = &lt;_pytest.capture.CaptureFixture instance at 0x10986d710&gt;
 
     def test_cli_options(self, capsys):
         lbag = LsdiBagger()
@@ -67,7 +25,7 @@ baggins/baggers/lsdi.py:250: TypeError</failure></testcase><testcase classname="
 tests/baggers/test_lsdi.py:73: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-_mock_self = &lt;MagicMock name=&apos;generate_configfile&apos; id=&apos;4573911696&apos;&gt;
+_mock_self = &lt;MagicMock name=&apos;generate_configfile&apos; id=&apos;4454900432&apos;&gt;
 
     def assert_called_once(_mock_self):
         &quot;&quot;&quot;assert that the mock was called only once.
@@ -91,7 +49,7 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -f FILE, -file FILE   Digitization Workflow File With Item IDs
+  -f FILE, --file FILE  Digitization Workflow File With Item IDs
   -o OUTPUT_DIR, --output OUTPUT_DIR
                         Directory for generated bag content
 
@@ -102,21 +60,7 @@ Config file options:
   --config CONFIG, -c CONFIG
                         Load the specified config file (default: $HOME/.lsdi-
                         bagger)
-</system-out></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="94" name="test_setup_configparser" time="0.000823020935059"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="106" name="test_generate_configfile" time="0.00954794883728"><system-out>Config file created at /var/folders/rd/b_q2khss4mn8pnwny07hh8nn1nd_w_/T/tmpVgLjeZ
-</system-out></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="134" name="test_load_configfile_valid" time="0.00121307373047"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="151" name="test_load_configfile_nonexistent" time="0.0010130405426"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="167" name="test_load_configfile_empty" time="0.00137281417847"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="182" name="test_process_multiple_items" time="0.00196290016174"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="201" name="test_process_items_toomany" time="0.00145411491394"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="215" name="test_process_items_valid" time="0.00211095809937"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="264" name="test_object_id" time="0.00137639045715"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="271" name="test_object_title" time="0.00436425209045"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="276" name="test_image_files" time="0.0092670917511"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="332" name="test_page_text_files" time="0.00437068939209"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="366" name="test_data_files" time="0.00269603729248"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="392" name="test_load_item_ids" time="0.00303912162781"><failure message="Failed: DID NOT RAISE &lt;type &apos;exceptions.IOError&apos;&gt;">self = &lt;test_lsdi.TestLsdiBaggee instance at 0x110c15908&gt;
-
-    def test_load_item_ids(self):
-        fake_fixture = &apos;fakefile_ids.csv&apos;
-        true_fixture = &apos;file_ids.csv&apos;
-        lbag = LsdiBagger()
-        # nonexistent file
-    
-        lbag.options.file = os.path.join(FIXTURE_DIR, fake_fixture)
-    
-        # raises error when there is no file provided
-        with pytest.raises(IOError):
-&gt;           lbag.load_item_ids()
-E           Failed: DID NOT RAISE &lt;type &apos;exceptions.IOError&apos;&gt;
-
-tests/baggers/test_lsdi.py:403: Failed</failure><system-out>Unable to load specified csv file
-</system-out></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="425" name="test_descriptive_metadata" time="0.00204300880432"></testcase></testsuite>
+</system-out></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="94" name="test_setup_configparser" time="0.000782251358032"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="106" name="test_generate_configfile" time="0.0112197399139"><system-out>Config file created at /var/folders/rd/b_q2khss4mn8pnwny07hh8nn1nd_w_/T/tmpsF1dDP
+</system-out></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="134" name="test_load_configfile_valid" time="0.00149321556091"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="151" name="test_load_configfile_nonexistent" time="0.000971794128418"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="167" name="test_load_configfile_empty" time="0.00128507614136"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="182" name="test_process_multiple_items" time="0.00190997123718"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="201" name="test_process_items_toomany" time="0.00156021118164"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBagger" file="tests/baggers/test_lsdi.py" line="215" name="test_process_items_valid" time="0.00211429595947"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="264" name="test_object_id" time="0.00145697593689"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="271" name="test_object_title" time="0.00473999977112"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="276" name="test_image_files" time="0.0141711235046"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="332" name="test_page_text_files" time="0.00548124313354"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="366" name="test_data_files" time="0.00304293632507"></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="394" name="test_load_item_ids" time="0.00176119804382"><system-out>/Users/azotov/django_apps/emory-baggins/tests/baggers/../fixtures/file_ids.csv
+[&apos;1&apos;, &apos;2&apos;, &apos;3&apos;, &apos;4&apos;, &apos;5&apos;, &apos;6&apos;, &apos;7&apos;, &apos;12&apos;, &apos;23&apos;, &apos;34&apos;, &apos;45&apos;, &apos;56&apos;, &apos;67&apos;, &apos;98&apos;, &apos;21&apos;, &apos;32&apos;, &apos;43&apos;, &apos;54&apos;, &apos;65&apos;, &apos;76&apos;, &apos;87&apos;, &apos;98&apos;]
+</system-out></testcase><testcase classname="tests.baggers.test_lsdi.TestLsdiBaggee" file="tests/baggers/test_lsdi.py" line="417" name="test_descriptive_metadata" time="0.00158882141113"></testcase></testsuite>

@@ -269,10 +269,11 @@ class LsdiBagger(object):
 
     def load_item_ids(self):
         try:
+            print self.options.file
             with open(self.options.file) as f:
                 list_of_ids = [x.strip('\n') for x in f.readlines()]
             return list_of_ids
-        except IOError:
+        except Exception:
             print "Unable to load specified csv file"
 
 

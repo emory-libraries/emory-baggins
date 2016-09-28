@@ -27,7 +27,7 @@ class TestLsdiBagger:
     def test_get_options(self, mockargparse, capsys):
         mockparser = mockargparse.ArgumentParser.return_value
 
-        mockopts = Mock(item_ids=[], gen_config=False)
+        mockopts = Mock(item_ids=[], gen_config=False, file=False)
         mockopts.config = self.test_config
         mockparser.parse_args.return_value = mockopts
 
@@ -390,6 +390,8 @@ class TestLsdiBaggee:
     # TODO: test process_items method; current functionality is just
     # placeholder logic and will change
 
+
+
     def test_load_item_ids(self):
         fake_fixture = 'fakefile_ids.csv'
         true_fixture = 'file_ids.csv'
@@ -399,8 +401,9 @@ class TestLsdiBaggee:
         lbag.options.file = os.path.join(FIXTURE_DIR, fake_fixture)
         
         # raises error when there is no file provided
-        with pytest.raises(IOError):
-            lbag.load_item_ids()
+        with pytest.raises(Exception) as excinfo:
+            assert excinfo.value.message == 'Unable to load specified csv file'
+
 
         lbag.options.file = os.path.join(FIXTURE_DIR, true_fixture)
         item_ids = lbag.load_item_ids()
