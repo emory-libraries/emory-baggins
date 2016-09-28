@@ -10,9 +10,12 @@ import glob
 import os
 import requests
 import shutil
+import csv
 
 from baggins.digwf import Client
 from baggins.baggers import bag
+
+FIXTURE_DIR = os.path.join(os.path.dirname(__file__), 'fixtures')
 
 
 class LsdiBaggee(bag.Baggee):
@@ -38,8 +41,23 @@ class LsdiBaggee(bag.Baggee):
         return [self.item.marc_path]
 
     def bag_info(self):
-        '''Dictionary of info about the bag'''
-        return self.item.bag_info()
+        d = {}
+        obj_id = self.item.item_id
+        collection_source = os.path.join(FIXTURE_DIR, 'collections_sourceorganizations.txt')
+        with open(collection_source, 'r') as f:
+            reader = csv.reader(f, dialect='excel', delimiter='\t')
+            for row in reader:
+                if int(row[0]) == int(obj_id):
+                    d["Source-Organization"] = row[2]
+                    d["Organization-Address"] = row[3]
+
+            if not d["Source-Organization"]:
+                d["Source-Organization"] = "undetermined"
+
+            if not d["Source-Organization"]:
+                d["Organization-Address"] = "not known"
+
+        return d   
 
     def data_files(self):
         '''List of data files to be included in the bag.  PDF, OCR xml,
