@@ -58,7 +58,7 @@ class LsdiBaggee(bag.Baggee):
             if not d["Source-Organization"]:
                 d["Source-Organization"] = "undetermined"
 
-            if not d["Source-Organization"]:
+            if not d["Organization-Address"]:
                 d["Organization-Address"] = "not known"
 
         return d   

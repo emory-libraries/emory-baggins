@@ -21,7 +21,7 @@ class SampleBaggee(Baggee):
     def __init__(self):
         self.files = []
         self.desc_metadata = []
-        self.bag_info = {}
+        self.bag_info = {"Source-Organization": "Rose Library", "Organization-Address": "Atlanta"}
 
     def bag_info(self):
         return self.bag_info
@@ -59,6 +59,13 @@ class TestBaggee:
         samplebag.title = 'A Test Item with a very long title'
         assert samplebag.file_title() == 'A-Test-Item-with-a-very-long-title'
 
+    def test_bag_info(self):
+        samplebag = SampleBaggee()
+        info = samplebag.bag_info
+        assert info["Source-Organization"] == "Rose Library"
+        assert info["Organization-Address"] == "Atlanta"
+
+
     def test_bag_name(self):
         assert SampleBaggee().bag_name() == '1234-A-Test-Item-to-Bag'
 
@@ -87,6 +94,7 @@ class TestBaggee:
         # create a temporary file to act as data payload
         samplecontent = tempfile.NamedTemporaryFile()
         samplebag.files.append(samplecontent.name)
+        samplebag.bag_info = {"Source-Organization": "Main Library", "Organization-Address": "Eagle Row"}
         samplecontent_basename = os.path.basename(samplecontent.name)
         # add descriptive metadata
         samplebag.desc_metadata.append(self.marcxml_file)
@@ -113,6 +121,11 @@ class TestBaggee:
         # are set in our bags
         assert bag.version
         assert bag.encoding
+
+        # check bag info metadata
+        assert bag.info['Source-Organization'] == 'Main Library'
+        assert bag.info['Organization-Address'] == 'Eagle Row'
+
 
         # by default, we want to create both md5 and sha256 manifests
         manifest_names = [os.path.basename(manifest)
