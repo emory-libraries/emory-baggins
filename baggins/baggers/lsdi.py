@@ -46,10 +46,14 @@ class LsdiBaggee(bag.Baggee):
         collection_source = os.path.join(FIXTURE_DIR, 'collections_sourceorganizations.txt')
         with open(collection_source, 'r') as f:
             reader = csv.reader(f, dialect='excel', delimiter='\t')
-            for row in reader:
-                if int(row[0]) == int(obj_id):
-                    d["Source-Organization"] = row[2]
-                    d["Organization-Address"] = row[3]
+            for idx,row in reader:
+
+                if idx == 0:
+                    headers = row
+
+                if int(row[headers.index('collection id')]) == int(obj_id):
+                    d["Source-Organization"] = row[headers.index('source organization')]
+                    d["Organization-Address"] = row[headers.index('source organization address')]
 
             if not d["Source-Organization"]:
                 d["Source-Organization"] = "undetermined"
