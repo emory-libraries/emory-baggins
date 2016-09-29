@@ -12,7 +12,7 @@ import requests
 import shutil
 import csv
 
-from baggins.digwf import Client
+from baggins.lsdi.digwf import Client
 from baggins.baggers import bag
 
 FIXTURE_DIR = os.path.join(os.path.dirname(__file__), 'fixtures')

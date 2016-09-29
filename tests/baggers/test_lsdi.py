@@ -9,7 +9,7 @@ import sys
 import tempfile
 
 from baggins.baggers.lsdi import LsdiBagger, LsdiBaggee
-from baggins import digwf
+from baggins.lsdi import digwf
 
 FIXTURE_DIR = os.path.join(os.path.dirname(__file__), 'fixtures')
 

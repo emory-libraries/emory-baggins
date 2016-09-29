@@ -3,10 +3,10 @@ import requests
 from mock import patch
 from eulxml.xmlmap import load_xmlobject_from_file
 
-from baggins import digwf
+from baggins.lsdi import digwf
 
 
-FIXTURE_DIR = os.path.join(os.path.dirname(__file__), 'fixtures')
+FIXTURE_DIR = os.path.join(os.path.dirname(__file__), '..', 'fixtures')
 
 
 class TestDigwfClient:
@@ -29,7 +29,7 @@ class TestDigwfClient:
         with open(self.item_response, 'r') as itemresult:
             itemresult_content = itemresult.read()
 
-        with patch('baggins.digwf.requests') as mockrequests:
+        with patch('baggins.lsdi.digwf.requests') as mockrequests:
             item_id = 3031
             mockrequests.codes.ok = requests.codes.ok
             mockrequests.get.return_value.status_code = requests.codes.ok
