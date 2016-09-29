@@ -4,18 +4,13 @@ Bagging logic for LSDI digitized book content.
 '''
 
 import argparse
-import bagit
 from ConfigParser import ConfigParser, NoOptionError, NoSectionError
 import glob
 import os
 import requests
-import shutil
-import csv
 
 from baggins.lsdi.digwf import Client
 from baggins.baggers import bag
-
-FIXTURE_DIR = os.path.join(os.path.dirname(__file__), 'fixtures')
 
 
 class LsdiBaggee(bag.Baggee):
