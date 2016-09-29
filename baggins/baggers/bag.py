@@ -18,7 +18,6 @@ class Baggee(object):
     #: checksum algorithms to use when generating the bag
     checksum_algorithms = ['md5', 'sha256']
     # NOTE: may eventually want to make these configurable
-    bag_info = {}
 
     def object_id(self):
         '''Object ID for this item. Use PID, ARK, or OCLC Number
@@ -37,6 +36,12 @@ class Baggee(object):
         '''
         if getattr(self, 'title', None):
             return getattr(self, 'title')
+
+    @property
+    def bag_info(self):
+        '''Object bag info. Default implementation: returns dictionary info.
+        '''
+        return {}
 
     def data_files(self):
         '''List of files to be included in the bag as payload content.'''
