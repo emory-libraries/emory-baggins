@@ -17,11 +17,13 @@ class SampleBaggee(Baggee):
     title = 'A Test Item to Bag'
     files = None
     desc_metadata = None
+    rel_metadata = None
     bag_info = None
 
     def __init__(self):
         self.files = []
         self.desc_metadata = []
+        self.rel_metadata = []
         self.info = {"Source-Organization": "Rose Library", "Organization-Address": "Atlanta"}
 
     def bag_info(self):
@@ -32,6 +34,9 @@ class SampleBaggee(Baggee):
 
     def descriptive_metadata(self):
         return self.desc_metadata
+
+    def relationship_metadata(self):
+        return self.rel_metadata
 
 
 @pytest.mark.usefixtures("tmpdir")
@@ -78,6 +83,16 @@ class TestBaggee:
         filecmp.cmp(self.marcxml_file,
                     os.path.join(unicode(tmpdir), 'metadata', 'descriptive',
                                  self.marcml_basename))
+
+    def test_add_relationship_metadata(self, tmpdir):
+        samplebag = SampleBaggee()
+        relcontent = tempfile.NamedTemporaryFile()
+        samplebag.rel_metadata.append(relcontent.name)
+
+        samplebag.add_relationship_metadata(unicode(tmpdir))
+        filecmp.cmp(relcontent.name,
+                    os.path.join(unicode(tmpdir), 'metadata', 'relationship',
+                                 os.path.basename(relcontent.name)))
 
     def test_create_bag(self, tmpdir):
         samplebag = SampleBaggee()
