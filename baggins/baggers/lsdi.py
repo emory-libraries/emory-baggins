@@ -9,6 +9,7 @@ import glob
 import os
 import requests
 
+from baggins.lsdi.collections import CollectionSources
 from baggins.lsdi.digwf import Client
 from baggins.baggers import bag
 
@@ -36,27 +37,13 @@ class LsdiBaggee(bag.Baggee):
         return [self.item.marc_path]
 
     def bag_info(self):
-        d = {}
-        obj_id = self.item.item_id
-        collection_source = os.path.join(FIXTURE_DIR, 'collections_sourceorganizations.txt')
-        with open(collection_source, 'r') as f:
-            reader = csv.reader(f, dialect='excel', delimiter='\t')
-            for idx, row in reader:
-
-                if idx == 0:
-                    headers = row
-
-                if int(row[headers.index('collection id')]) == int(obj_id):
-                    d["Source-Organization"] = row[headers.index('source organization')]
-                    d["Organization-Address"] = row[headers.index('source organization address')]
-
-            if not d["Source-Organization"]:
-                d["Source-Organization"] = "undetermined"
-
-            if not d["Organization-Address"]:
-                d["Organization-Address"] = "not known"
-
-        return d
+        # look up source organization info by item's collection id
+        source_info = CollectionSources.info_by_id(self.item.collection_id)
+        return {
+            'Source-Organization': source_info['organization'],
+            'Organization-Address': source_info['address']
+            # more to be added later...
+        }
 
     def data_files(self):
         '''List of data files to be included in the bag.  PDF, OCR xml,

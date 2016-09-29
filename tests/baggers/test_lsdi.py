@@ -433,9 +433,20 @@ class TestLsdiBaggee:
                 for txtfile in mock_txtfiles.return_value:
                     assert txtfile in datafiles
 
+    def test_bag_info(self, lsdibag):
+        # should lookup based on fixture item collection
+        info = lsdibag.bag_info()
+        assert info['Source-Organization'] == 'undetermined'
+        assert info['Organization-Address'] == 'not known'
+
+        # set item collection id to one that can be looked up
+        lsdibag.item.collection_id = 21
+        info = lsdibag.bag_info()
+        assert info['Source-Organization'] == 'Stuart A. Rose Manuscript, Archives and Rare Book Library'
+        assert info['Organization-Address'] == '540 Asbury Circle, Atlanta, GA 30322'
+
     # TODO: test process_items method; current functionality is just
     # placeholder logic and will change
-
 
     def test_descriptive_metadata(self, lsdibag):
         assert lsdibag.item.marc_path in lsdibag.descriptive_metadata()
