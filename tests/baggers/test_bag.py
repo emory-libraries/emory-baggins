@@ -17,14 +17,15 @@ class SampleBaggee(Baggee):
     title = 'A Test Item to Bag'
     files = None
     desc_metadata = None
+    bag_info = None
 
     def __init__(self):
         self.files = []
         self.desc_metadata = []
-        self.bag_info = {"Source-Organization": "Rose Library", "Organization-Address": "Atlanta"}
+        self.info = {"Source-Organization": "Rose Library", "Organization-Address": "Atlanta"}
 
     def bag_info(self):
-        return self.bag_info
+        return self.info
 
     def data_files(self):
         return self.files
@@ -44,10 +45,6 @@ class TestBaggee:
         assert Baggee().object_id() == None
         assert SampleBaggee().object_id() == SampleBaggee.pid
 
-    def test_object_id(self):
-        assert Baggee().object_title() == None
-        assert SampleBaggee().object_title() == SampleBaggee.title
-
     def test_file_title(self):
         samplebag = SampleBaggee()
         # basic slugifcation from object title
@@ -58,13 +55,6 @@ class TestBaggee:
         # partial word after truncation should be included
         samplebag.title = 'A Test Item with a very long title'
         assert samplebag.file_title() == 'A-Test-Item-with-a-very-long-title'
-
-    def test_bag_info(self):
-        samplebag = SampleBaggee()
-        info = samplebag.bag_info
-        assert info["Source-Organization"] == "Rose Library"
-        assert info["Organization-Address"] == "Atlanta"
-
 
     def test_bag_name(self):
         assert SampleBaggee().bag_name() == '1234-A-Test-Item-to-Bag'
@@ -94,7 +84,10 @@ class TestBaggee:
         # create a temporary file to act as data payload
         samplecontent = tempfile.NamedTemporaryFile()
         samplebag.files.append(samplecontent.name)
-        samplebag.bag_info = {"Source-Organization": "Main Library", "Organization-Address": "Eagle Row"}
+        source_org = "Main Library"
+        source_address = "Eagle Row"
+        samplebag.info = {"Source-Organization": source_org,
+                          "Organization-Address": source_address}
         samplecontent_basename = os.path.basename(samplecontent.name)
         # add descriptive metadata
         samplebag.desc_metadata.append(self.marcxml_file)
@@ -122,10 +115,9 @@ class TestBaggee:
         assert bag.version
         assert bag.encoding
 
-        # check bag info metadata
-        assert bag.info['Source-Organization'] == 'Main Library'
-        assert bag.info['Organization-Address'] == 'Eagle Row'
-
+        # check that bag info metadata was passed through
+        assert bag.info['Source-Organization'] == source_org
+        assert bag.info['Organization-Address'] == source_address
 
         # by default, we want to create both md5 and sha256 manifests
         manifest_names = [os.path.basename(manifest)
