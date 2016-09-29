@@ -32,6 +32,8 @@ requirements = [
     'requests',
     'pymarc',
     'bagit',
+    'eulfedora',
+    'pyyaml',
     'cached-property',
     'awesome-slugify',
 ]
