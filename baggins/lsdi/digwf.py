@@ -13,7 +13,6 @@ Large Scale Digitization Initiative (LSDI) content.
 from cached_property import cached_property
 from eulxml import xmlmap
 import requests
-from pymarc import MARCReader
 import pymarc
 
 
