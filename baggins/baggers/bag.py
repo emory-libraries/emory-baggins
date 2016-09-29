@@ -37,6 +37,12 @@ class Baggee(object):
         if getattr(self, 'title', None):
             return getattr(self, 'title')
 
+    def bag_info(self):
+        '''Optional metadata to be included in Bag info.  Should return
+        a dictionary to be passed to the bagit make_bag method.
+        '''
+        return {}
+
     def data_files(self):
         '''List of files to be included in the bag as payload content.'''
         return []
@@ -132,8 +138,10 @@ class Baggee(object):
         # descriptive metadata
         self.add_descriptive_metadata(bagdir)
 
-        # create the bag
-        bag = bagit.make_bag(bagdir, checksum=self.checksum_algorithms)
+        # create the bag, passing in any bag metadata and configured
+        # checksum algorithms
+        bag = bagit.make_bag(bagdir, self.bag_info(),
+                             checksum=self.checksum_algorithms)
 
         # NOTE: to add metadata as tag files (once there is a version of
         # python-bagit that supports it), add the tagfile content to the

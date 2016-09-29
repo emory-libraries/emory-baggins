@@ -1,3 +1,4 @@
+import os
 from ConfigParser import ConfigParser
 from eulxml.xmlmap import load_xmlobject_from_file
 from mock import patch, Mock, call
@@ -8,7 +9,9 @@ import sys
 import tempfile
 
 from baggins.baggers.lsdi import LsdiBagger, LsdiBaggee
-from baggins import digwf
+from baggins.lsdi import digwf
+
+FIXTURE_DIR = os.path.join(os.path.dirname(__file__), 'fixtures')
 
 
 FIXTURE_DIR = os.path.join(os.path.dirname(__file__), '..', 'fixtures')
@@ -23,7 +26,7 @@ class TestLsdiBagger:
     def test_get_options(self, mockargparse, capsys):
         mockparser = mockargparse.ArgumentParser.return_value
 
-        mockopts = Mock(item_ids=[], gen_config=False)
+        mockopts = Mock(item_ids=[], gen_config=False, file=False)
         mockopts.config = self.test_config
         mockparser.parse_args.return_value = mockopts
 
@@ -35,7 +38,7 @@ class TestLsdiBagger:
         # check captured output
         output = capsys.readouterr()
         assert output[0] == \
-            'Please specify one or more item ids for items to process\n'
+            'Please specify items to process\n'
 
         mockargparse.ArgumentParser.assert_called_once()
         mockparser.parse_args.assert_called_once()
@@ -46,7 +49,30 @@ class TestLsdiBagger:
         lbag.get_options()
         assert lbag.options == mockopts
 
-    def test_cli_options(self, capsys):
+    def test_load_ids_from_file(self, tmpdir, capsys):
+        lbag = LsdiBagger()
+
+        # test with nonexistent file, should error
+        lbag.options.file = '/some/bogus/path/to/nonexistent/id.txt'
+        # non-existent file should print an error
+        lbag.load_ids_from_file()
+        output = capsys.readouterr()
+        assert output[0] == 'Unable to load specified id file\n'
+
+        # generate a test file with a list of ids
+        ids = ['480', '3130', '1892', '4234']
+        idfile = tempfile.NamedTemporaryFile(suffix='.txt', prefix='ids-',
+                                             dir=unicode(tmpdir),
+                                             delete=False)
+        idfile.write('\n'.join(ids))
+        idfile.close()  # close to flish out to disk
+
+        lbag.options.file = idfile.name
+        loaded_item_ids = lbag.load_ids_from_file()
+        for item_id in ids:
+            assert item_id in loaded_item_ids
+
+    def test_cli_options(self, capsys, tmpdir):
         lbag = LsdiBagger()
 
         # no item ids specified
@@ -55,8 +81,7 @@ class TestLsdiBagger:
             with pytest.raises(SystemExit):
                 lbag.get_options()
             output = capsys.readouterr()
-            assert 'Please specify one or more item ids for items to process' \
-                in output[0]
+            assert output[0].startswith('Please specify items to process\n')
 
         # generate config file
         testargs = ["lsdi-bagger", "--generate-config", 'my-config-file.cfg']
@@ -86,6 +111,31 @@ class TestLsdiBagger:
             assert lbag.options.output == '/tmp/bags'
             assert lbag.options.digwf_url == 'http://example.co:3100/digwf_api/'
 
+        # test that id file logic is triggered correctly by -f flag
+
+        # empty id file input should complain about no ids to process
+        empty_idfile = tempfile.NamedTemporaryFile(
+            suffix='.txt', prefix='empty-ids-', dir=unicode(tmpdir),
+            delete=False)
+        testargs = ["lsdi-bagger", "-c", test_cfgfile,
+                    '--file', empty_idfile.name]
+        with patch.object(sys, 'argv', testargs):
+            with pytest.raises(SystemExit):
+                lbag.get_options()
+                output = capsys.readouterr()
+                assert 'Please specify items to process\n' in output[0]
+
+        # valid id file
+        ids = ['480', '3130', '1892', '4234']
+        idfile = tempfile.NamedTemporaryFile(suffix='.txt', prefix='ids-',
+                                             dir=unicode(tmpdir),
+                                             delete=False)
+        idfile.write('\n'.join(ids))
+        idfile.close()  # close to flish out to disk
+        testargs = ["lsdi-bagger", "-c", test_cfgfile, '-f', idfile.name]
+        with patch.object(sys, 'argv', testargs):
+            lbag.get_options()
+            assert ids == lbag.options.item_ids
     # tests for config parser logic (creation, loading, etc)
 
     def test_setup_configparser(self):
@@ -145,7 +195,7 @@ class TestLsdiBagger:
         lbag.load_configfile()
         assert lbag.options.output != '/tmp/bags'
 
-    def test_load_configfile_nonexistent(self, capsys):
+    def test_load_cfgfile_nonexistent(self, capsys):
         lbag = LsdiBagger()
         # use a Mock to simulate argparse options
         lbag.options = Mock(item_ids=[], gen_config=False, digwf_url=None)
@@ -383,5 +433,21 @@ class TestLsdiBaggee:
                 for txtfile in mock_txtfiles.return_value:
                     assert txtfile in datafiles
 
+    def test_bag_info(self, lsdibag):
+        # should lookup based on fixture item collection
+        info = lsdibag.bag_info()
+        assert info['Source-Organization'] == 'undetermined'
+        assert info['Organization-Address'] == 'not known'
+
+        # set item collection id to one that can be looked up
+        lsdibag.item.collection_id = 21
+        info = lsdibag.bag_info()
+        assert info['Source-Organization'] == 'Stuart A. Rose Manuscript, Archives and Rare Book Library'
+        assert info['Organization-Address'] == '540 Asbury Circle, Atlanta, GA 30322'
+
+    # TODO: test process_items method; current functionality is just
+    # placeholder logic and will change
+
     def test_descriptive_metadata(self, lsdibag):
         assert lsdibag.item.marc_path in lsdibag.descriptive_metadata()
+

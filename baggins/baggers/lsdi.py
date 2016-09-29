@@ -4,14 +4,13 @@ Bagging logic for LSDI digitized book content.
 '''
 
 import argparse
-import bagit
 from ConfigParser import ConfigParser, NoOptionError, NoSectionError
 import glob
 import os
 import requests
-import shutil
 
-from baggins.digwf import Client
+from baggins.lsdi.collections import CollectionSources
+from baggins.lsdi.digwf import Client
 from baggins.baggers import bag
 
 
@@ -36,6 +35,15 @@ class LsdiBaggee(bag.Baggee):
         '''List of descriptive metadata files to be included in the bag.
         Currently only includes MARC XML.'''
         return [self.item.marc_path]
+
+    def bag_info(self):
+        # look up source organization info by item's collection id
+        source_info = CollectionSources.info_by_id(self.item.collection_id)
+        return {
+            'Source-Organization': source_info['organization'],
+            'Organization-Address': source_info['address']
+            # more to be added later...
+        }
 
     def data_files(self):
         '''List of data files to be included in the bag.  PDF, OCR xml,
@@ -106,8 +114,11 @@ class LsdiBagger(object):
     def get_options(self):
         parser = argparse.ArgumentParser(
             description='Generate bagit bags from LSDI digitized book content')
-        parser.add_argument('item_ids', metavar='Item ID', nargs='*',
+        parser.add_argument('item_ids', metavar='ITEM_IDS', nargs='*',
                             help='Digitization Workflow Item ID')
+
+        parser.add_argument('-f', '--file', metavar='FILE',
+                            help='Digitization Workflow File With Item IDs')
 
         parser.add_argument('-o', '--output', metavar='OUTPUT_DIR',
                             help='Directory for generated bag content')
@@ -130,9 +141,11 @@ class LsdiBagger(object):
             self.generate_configfile()
             exit()
 
-        # check that we have something to process
+        if self.options.file:
+            self.options.item_ids = self.load_ids_from_file()
+
         if not self.options.item_ids:
-            print 'Please specify one or more item ids for items to process'
+            print 'Please specify items to process'
             parser.print_help()
             exit()
 
@@ -150,7 +163,9 @@ class LsdiBagger(object):
         self.process_items()
 
     def process_items(self):
+
         digwf_api = Client(self.options.digwf_url)
+
         for item_id in self.options.item_ids:
             try:
                 result = digwf_api.get_items(item_id=item_id)
@@ -171,10 +186,15 @@ class LsdiBagger(object):
                 # item id, but just in case
                 print 'Error! DigWF returned %d matches for item id %s' % \
                     (result.count, item_id)
+
                 continue
 
             # returns a bagit bag object.
             newbag = LsdiBaggee(item).create_bag(self.options.output)
+
+            # generate source organization summaary for this bag
+            # self.load_source_summary(newbag)
+
             print 'Bag created at %s' % newbag
 
     # config file section headings
@@ -230,3 +250,18 @@ class LsdiBagger(object):
         if cfg.has_option(self.filepaths_cfg, 'output') and \
            not self.options.output:
             self.options.output = cfg.get(self.filepaths_cfg, 'output')
+
+    def load_ids_from_file(self):
+        try:
+            with open(self.options.file) as f:
+                return [x.strip('\n') for x in f.readlines()]
+        except Exception:
+            print "Unable to load specified id file"
+
+
+
+
+
+
+
+
