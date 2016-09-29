@@ -46,7 +46,7 @@ class LsdiBaggee(bag.Baggee):
         collection_source = os.path.join(FIXTURE_DIR, 'collections_sourceorganizations.txt')
         with open(collection_source, 'r') as f:
             reader = csv.reader(f, dialect='excel', delimiter='\t')
-            for idx,row in reader:
+            for idx, row in reader:
 
                 if idx == 0:
                     headers = row
@@ -61,7 +61,7 @@ class LsdiBaggee(bag.Baggee):
             if not d["Organization-Address"]:
                 d["Organization-Address"] = "not known"
 
-        return d   
+        return d
 
     def data_files(self):
         '''List of data files to be included in the bag.  PDF, OCR xml,
@@ -138,7 +138,6 @@ class LsdiBagger(object):
         parser.add_argument('-f', '--file', metavar='FILE',
                             help='Digitization Workflow File With Item IDs')
 
-
         parser.add_argument('-o', '--output', metavar='OUTPUT_DIR',
                             help='Directory for generated bag content')
 
@@ -154,18 +153,18 @@ class LsdiBagger(object):
         # parse command line arguments
         self.options = parser.parse_args()
 
-        if not self.options.item_ids and not self.options.file:
-            print 'Please specify item ids or a file for items to process'
-            parser.print_help()
-            exit()
-
-        if self.options.file:
-            self.options.item_ids = self.load_item_ids()
-
         # if requested, generate an empty config file that can be filled in
         # and then quit
         if self.options.gen_config:
             self.generate_configfile()
+            exit()
+
+        if self.options.file:
+            self.options.item_ids = self.load_ids_from_file()
+
+        if not self.options.item_ids:
+            print 'Please specify items to process'
+            parser.print_help()
             exit()
 
         # load config file
@@ -180,7 +179,6 @@ class LsdiBagger(object):
     def run(self):
         self.get_options()
         self.process_items()
-
 
     def process_items(self):
 
@@ -271,14 +269,12 @@ class LsdiBagger(object):
            not self.options.output:
             self.options.output = cfg.get(self.filepaths_cfg, 'output')
 
-    def load_item_ids(self):
+    def load_ids_from_file(self):
         try:
-            print self.options.file
             with open(self.options.file) as f:
-                list_of_ids = [x.strip('\n') for x in f.readlines()]
-            return list_of_ids
+                return [x.strip('\n') for x in f.readlines()]
         except Exception:
-            print "Unable to load specified csv file"
+            print "Unable to load specified id file"
 
 
 

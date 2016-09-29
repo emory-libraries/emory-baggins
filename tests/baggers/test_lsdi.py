@@ -12,7 +12,6 @@ from baggins.baggers.lsdi import LsdiBagger, LsdiBaggee
 from baggins import digwf
 
 FIXTURE_DIR = os.path.join(os.path.dirname(__file__), 'fixtures')
-print 'fixture dir = ', FIXTURE_DIR
 
 
 FIXTURE_DIR = os.path.join(os.path.dirname(__file__), '..', 'fixtures')
@@ -39,7 +38,7 @@ class TestLsdiBagger:
         # check captured output
         output = capsys.readouterr()
         assert output[0] == \
-            'Please specify item ids or a file for items to process\n'
+            'Please specify items to process\n'
 
         mockargparse.ArgumentParser.assert_called_once()
         mockparser.parse_args.assert_called_once()
@@ -50,7 +49,30 @@ class TestLsdiBagger:
         lbag.get_options()
         assert lbag.options == mockopts
 
-    def test_cli_options(self, capsys):
+    def test_load_ids_from_file(self, tmpdir, capsys):
+        lbag = LsdiBagger()
+
+        # test with nonexistent file, should error
+        lbag.options.file = '/some/bogus/path/to/nonexistent/id.txt'
+        # non-existent file should print an error
+        lbag.load_ids_from_file()
+        output = capsys.readouterr()
+        assert output[0] == 'Unable to load specified id file\n'
+
+        # generate a test file with a list of ids
+        ids = ['480', '3130', '1892', '4234']
+        idfile = tempfile.NamedTemporaryFile(suffix='.txt', prefix='ids-',
+                                             dir=unicode(tmpdir),
+                                             delete=False)
+        idfile.write('\n'.join(ids))
+        idfile.close()  # close to flish out to disk
+
+        lbag.options.file = idfile.name
+        loaded_item_ids = lbag.load_ids_from_file()
+        for item_id in ids:
+            assert item_id in loaded_item_ids
+
+    def test_cli_options(self, capsys, tmpdir):
         lbag = LsdiBagger()
 
         # no item ids specified
@@ -59,8 +81,7 @@ class TestLsdiBagger:
             with pytest.raises(SystemExit):
                 lbag.get_options()
             output = capsys.readouterr()
-            assert 'Please specify item ids or a file for items to process' \
-                in output[0]
+            assert output[0].startswith('Please specify items to process\n')
 
         # generate config file
         testargs = ["lsdi-bagger", "--generate-config", 'my-config-file.cfg']
@@ -89,6 +110,18 @@ class TestLsdiBagger:
             lbag.get_options()
             assert lbag.options.output == '/tmp/bags'
             assert lbag.options.digwf_url == 'http://example.co:3100/digwf_api/'
+
+        # empty id file input should complain about no ids to process
+        empty_idfile = tempfile.NamedTemporaryFile(
+            suffix='.txt', prefix='empty-ids-', dir=unicode(tmpdir),
+            delete=False)
+        testargs = ["lsdi-bagger", "-c", test_cfgfile,
+                    '-f', empty_idfile.name]
+        with patch.object(sys, 'argv', testargs):
+            with pytest.raises(SystemExit):
+                lbag.get_options()
+                output = capsys.readouterr()
+                assert 'Please specify items to process\n' in output[0]
 
     # tests for config parser logic (creation, loading, etc)
 
@@ -149,7 +182,7 @@ class TestLsdiBagger:
         lbag.load_configfile()
         assert lbag.options.output != '/tmp/bags'
 
-    def test_load_configfile_nonexistent(self, capsys):
+    def test_load_cfgfile_nonexistent(self, capsys):
         lbag = LsdiBagger()
         # use a Mock to simulate argparse options
         lbag.options = Mock(item_ids=[], gen_config=False, digwf_url=None)
@@ -391,30 +424,6 @@ class TestLsdiBaggee:
     # placeholder logic and will change
 
 
-
-    def test_load_item_ids(self):
-        fake_fixture = 'fakefile_ids.csv'
-        true_fixture = 'file_ids.csv'
-        lbag = LsdiBagger()
-        # nonexistent file
-        
-        lbag.options.file = os.path.join(FIXTURE_DIR, fake_fixture)
-        
-        # raises error when there is no file provided
-        with pytest.raises(Exception) as excinfo:
-            assert excinfo.value.message == 'Unable to load specified csv file'
-
-
-        lbag.options.file = os.path.join(FIXTURE_DIR, true_fixture)
-        item_ids = lbag.load_item_ids()
-        print item_ids
-        for idx, item_id in enumerate(item_ids):
-            with open(lbag.options.file) as f:
-                for idn, x in enumerate(f.readlines()):
-                    if idn == idx:
-                        assert int(item_id) == int(x.strip('\n'))
-
-                
     def test_descriptive_metadata(self, lsdibag):
         assert lsdibag.item.marc_path in lsdibag.descriptive_metadata()
 
