@@ -8,9 +8,12 @@ from ConfigParser import ConfigParser, NoOptionError, NoSectionError
 import glob
 import os
 import requests
+import yaml
 
+from eulfedora.server import Repository
 from baggins.lsdi.collections import CollectionSources
 from baggins.lsdi.digwf import Client
+from baggins.lsdi.fedora import Volume
 from baggins.baggers import bag
 
 
@@ -19,8 +22,9 @@ class LsdiBaggee(bag.Baggee):
     bags according to emory bagit specification.
     '''
 
-    def __init__(self, item):
+    def __init__(self, item, repo=None):
         self.item = item
+        self.repo = repo
 
     def object_id(self):
         '''Object id for bag name; use pid/ark if available; otherwise, use
@@ -31,11 +35,6 @@ class LsdiBaggee(bag.Baggee):
         '''Object title for bag name: use title from MARC xml'''
         return self.item.marc.title()
 
-    def descriptive_metadata(self):
-        '''List of descriptive metadata files to be included in the bag.
-        Currently only includes MARC XML.'''
-        return [self.item.marc_path]
-
     def bag_info(self):
         # look up source organization info by item's collection id
         source_info = CollectionSources.info_by_id(self.item.collection_id)
@@ -44,6 +43,11 @@ class LsdiBaggee(bag.Baggee):
             'Organization-Address': source_info['address']
             # more to be added later...
         }
+
+    def descriptive_metadata(self):
+        '''List of descriptive metadata files to be included in the bag.
+        Currently only includes MARC XML.'''
+        return [self.item.marc_path]
 
     def data_files(self):
         '''List of data files to be included in the bag.  PDF, OCR xml,
@@ -101,6 +105,55 @@ class LsdiBaggee(bag.Baggee):
                             len(pos_files), self.item.item_id,
                             self.item.ocr_file_count)
         return text_files + pos_files
+
+    def relationship_metadata_info(self):
+        rel_info = {
+            'DigWF Collection': {
+                'id': self.item.collection_id,
+                'name': str(self.item.collection_name)
+            }
+        }
+        # if itme has a pid, look up related objects in fedora
+        if self.item.pid:
+            vol = self.repo.get_object('emory:%s' % self.item.pid, type=Volume)
+            # TODO: should error or warn if objects don't exist
+            # if not vol.exists:
+                # print "volume %s doesn't exist" % vol.pid
+            if vol.exists:
+                # parent book info
+                if vol.book.exists:
+                    # NOTE: using str to avoid unicode weirdness in yaml output
+                    book_info = {'pid': str(vol.book.pid),
+                                 'name': str(vol.book.label)}
+                    # include ark if available
+                    if vol.book.ark_uri:
+                        book_info.update({
+                            'ark_uri': vol.book.ark_uri,
+                            'ark': vol.book.ark
+                        })
+                    rel_info['Fedora Book'] = book_info
+                # collection
+                if vol.book.collection.exists:
+                    coll_info = {'pid': str(vol.book.collection.pid),
+                                 'name': str(vol.book.collection.label)}
+                    # include ark if available (but probably not available)
+                    if vol.book.collection.ark_uri:
+                        coll_info.update({
+                            'ark_uri': vol.book.collection.ark_uri,
+                            'ark': vol.book.collection.ark
+                        })
+                    rel_info['Fedora Collection'] = coll_info
+
+        return rel_info
+
+    def add_relationship_metadata(self, bagdir):
+        # override default implementation, since we don't just want to
+        # copy existig content in, but need to output content
+        rel_dir = super(LsdiBaggee, self).add_relationship_metadata(bagdir)
+        rel_file = os.path.join(rel_dir, 'machine-relationship.txt')
+        with open(rel_file, 'w') as outfile:
+            yaml.dump(self.relationship_metadata_info(), outfile,
+                      default_flow_style=False)
 
 
 class LsdiBagger(object):
@@ -165,6 +218,7 @@ class LsdiBagger(object):
     def process_items(self):
 
         digwf_api = Client(self.options.digwf_url)
+        repo = Repository(self.options.fedora_url)
 
         for item_id in self.options.item_ids:
             try:
@@ -190,7 +244,7 @@ class LsdiBagger(object):
                 continue
 
             # returns a bagit bag object.
-            newbag = LsdiBaggee(item).create_bag(self.options.output)
+            newbag = LsdiBaggee(item, repo).create_bag(self.options.output)
 
             # generate source organization summaary for this bag
             # self.load_source_summary(newbag)
@@ -200,6 +254,7 @@ class LsdiBagger(object):
     # config file section headings
     digwf_cfg = 'Digitization Workflow'
     filepaths_cfg = 'File Paths'
+    fedora_cfg = 'Fedora'
 
     def setup_configparser(self):
         # define a config file parser with options for required
@@ -211,6 +266,9 @@ class LsdiBagger(object):
         # file paths
         config.add_section(self.filepaths_cfg)
         config.set(self.filepaths_cfg, 'output', self.options.output or '')
+        # fedora
+        config.add_section(self.fedora_cfg)
+        config.set(self.fedora_cfg, 'url', 'http://fedora.server:8080/fedora/')
         # eventually we will have more config options here...
         return config
 
@@ -243,6 +301,16 @@ class LsdiBagger(object):
 
         if not getattr(self.options, 'digwf_url', None):
             print 'Error: Digitization Workflow URL not configured'
+            exit()
+
+        # - fedora url is required
+        try:
+            self.options.fedora_url = cfg.get(self.fedora_cfg, 'url')
+        except (NoOptionError, NoSectionError):
+            pass
+
+        if not getattr(self.options, 'fedora_url', None):
+            print 'Error: Fedora URL not configured'
             exit()
 
         # output could be specified via command line or config file;
