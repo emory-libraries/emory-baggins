@@ -111,18 +111,31 @@ class TestLsdiBagger:
             assert lbag.options.output == '/tmp/bags'
             assert lbag.options.digwf_url == 'http://example.co:3100/digwf_api/'
 
+        # test that id file logic is triggered correctly by -f flag
+
         # empty id file input should complain about no ids to process
         empty_idfile = tempfile.NamedTemporaryFile(
             suffix='.txt', prefix='empty-ids-', dir=unicode(tmpdir),
             delete=False)
         testargs = ["lsdi-bagger", "-c", test_cfgfile,
-                    '-f', empty_idfile.name]
+                    '--file', empty_idfile.name]
         with patch.object(sys, 'argv', testargs):
             with pytest.raises(SystemExit):
                 lbag.get_options()
                 output = capsys.readouterr()
                 assert 'Please specify items to process\n' in output[0]
 
+        # valid id file
+        ids = ['480', '3130', '1892', '4234']
+        idfile = tempfile.NamedTemporaryFile(suffix='.txt', prefix='ids-',
+                                             dir=unicode(tmpdir),
+                                             delete=False)
+        idfile.write('\n'.join(ids))
+        idfile.close()  # close to flish out to disk
+        testargs = ["lsdi-bagger", "-c", test_cfgfile, '-f', idfile.name]
+        with patch.object(sys, 'argv', testargs):
+            lbag.get_options()
+            assert ids == lbag.options.item_ids
     # tests for config parser logic (creation, loading, etc)
 
     def test_setup_configparser(self):
