@@ -19,10 +19,13 @@ class ArkDigitalObject(DigitalObject):
     @cached_property
     def ark(self):
         # just ark id, starting with ark:
-        return self.ark_uri[self.ark_uri.find('ark:/'):]
+        if self.ark_uri:
+            return self.ark_uri[self.ark_uri.find('ark:/'):]
+
 
 class Collection(ArkDigitalObject):
     pass
+
 
 class Book(ArkDigitalObject):
     '''Mimimal digitized Book object.
