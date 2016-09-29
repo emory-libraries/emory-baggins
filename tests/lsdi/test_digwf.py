@@ -65,6 +65,8 @@ class TestDigwfClient:
         assert item.pdf == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output/Output.pdf'
         assert item.marc_path == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/ocm08951025_MRC.xml'
         assert item.ocr_file == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output/Output.xml'
+        assert item.collection_id == 10
+        assert item.collection_name == 'Atlanta City Directories'
 
         response = load_xmlobject_from_file(self.empty_response, digwf.Items)
         assert response.count == 0

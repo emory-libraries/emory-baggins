@@ -81,6 +81,11 @@ class Item(xmlmap.XmlObject):
     #: path to marc xml file
     marc_path = xmlmap.StringField('marc_file')
 
+    #: collection id
+    collection_id = xmlmap.IntegerField('collection/@id')
+    #: collection name
+    collection_name = xmlmap.StringField('collection')
+
     # NOTE: these mappings are incomplete, and only include what was pused
     # for readux page ingest; we will likely need to add more mappings
 
