@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 from setuptools import setup, find_packages
 import baggins
 
@@ -55,4 +56,7 @@ setup(
     long_description=LONG_DESCRIPTION,
     classifiers=CLASSIFIERS,
     scripts=['scripts/lsdi-bagger'],
+    package_data={'baggins': [
+        "lsdi/content/*.*"
+    ]}
 )
