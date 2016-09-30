@@ -9,6 +9,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
+lsdi-bagger.cfg
 build/
 develop-eggs/
 dist/
@@ -42,6 +43,7 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+tests.xml
 *,cover
 .hypothesis/
 

@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+
+from baggins.baggers.lsdi import LsdiBagger
+
+
+if __name__ == '__main__':
+    LsdiBagger().run()
+
