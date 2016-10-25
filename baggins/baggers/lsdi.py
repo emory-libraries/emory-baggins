@@ -155,7 +155,7 @@ class LsdiBagger(object):
             try:
                 result = digwf_api.get_items(item_id=item_id)
             except requests.exceptions.HTTPError as err:
-                print 'Error querying API for %s: %s' % (item_id, err)
+                print 'Error querying DigWF REST API for %s: %s' % (item_id, err)
                 continue
 
             if result.count == 1:
@@ -164,12 +164,12 @@ class LsdiBagger(object):
                     (item_id, item.pid or '-', item.control_key,
                      item.marc_path)
             elif result.count == 0:
-                print 'No item found for item id %s' % item_id
+                print 'No item found for this item id %s' % item_id
                 continue
             else:
                 # shouldn't get more than one match when looking up by
                 # item id, but just in case
-                print 'Error! DigWF returned %d matches for item id %s' % \
+                print 'Error! DigWF returned %d matches for this item id %s' % \
                     (result.count, item_id)
                 continue
 
