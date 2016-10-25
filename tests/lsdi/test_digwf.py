@@ -3,10 +3,10 @@ import requests
 from mock import patch
 from eulxml.xmlmap import load_xmlobject_from_file
 
-from baggins import digwf
+from baggins.lsdi import digwf
 
 
-FIXTURE_DIR = os.path.join(os.path.dirname(__file__), 'fixtures')
+FIXTURE_DIR = os.path.join(os.path.dirname(__file__), '..', 'fixtures')
 
 
 class TestDigwfClient:
@@ -29,7 +29,7 @@ class TestDigwfClient:
         with open(self.item_response, 'r') as itemresult:
             itemresult_content = itemresult.read()
 
-        with patch('baggins.digwf.requests') as mockrequests:
+        with patch('baggins.lsdi.digwf.requests') as mockrequests:
             item_id = 3031
             mockrequests.codes.ok = requests.codes.ok
             mockrequests.get.return_value.status_code = requests.codes.ok
@@ -65,6 +65,8 @@ class TestDigwfClient:
         assert item.pdf == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output/Output.pdf'
         assert item.marc_path == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/ocm08951025_MRC.xml'
         assert item.ocr_file == '/mnt/lsdi/diesel/lts_new/ocm08951025-3031/ocm08951025/Output/Output.xml'
+        assert item.collection_id == 10
+        assert item.collection_name == 'Atlanta City Directories'
 
         response = load_xmlobject_from_file(self.empty_response, digwf.Items)
         assert response.count == 0

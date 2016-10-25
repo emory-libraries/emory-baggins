@@ -17,16 +17,26 @@ class SampleBaggee(Baggee):
     title = 'A Test Item to Bag'
     files = None
     desc_metadata = None
+    rel_metadata = None
+    bag_info = None
 
     def __init__(self):
         self.files = []
         self.desc_metadata = []
+        self.rel_metadata = []
+        self.info = {"Source-Organization": "Rose Library", "Organization-Address": "Atlanta"}
+
+    def bag_info(self):
+        return self.info
 
     def data_files(self):
         return self.files
 
     def descriptive_metadata(self):
         return self.desc_metadata
+
+    def relationship_metadata(self):
+        return self.rel_metadata
 
 
 @pytest.mark.usefixtures("tmpdir")
@@ -39,10 +49,6 @@ class TestBaggee:
     def test_object_id(self):
         assert Baggee().object_id() == None
         assert SampleBaggee().object_id() == SampleBaggee.pid
-
-    def test_object_id(self):
-        assert Baggee().object_title() == None
-        assert SampleBaggee().object_title() == SampleBaggee.title
 
     def test_file_title(self):
         samplebag = SampleBaggee()
@@ -78,11 +84,25 @@ class TestBaggee:
                     os.path.join(unicode(tmpdir), 'metadata', 'descriptive',
                                  self.marcml_basename))
 
+    def test_add_relationship_metadata(self, tmpdir):
+        samplebag = SampleBaggee()
+        relcontent = tempfile.NamedTemporaryFile()
+        samplebag.rel_metadata.append(relcontent.name)
+
+        samplebag.add_relationship_metadata(unicode(tmpdir))
+        filecmp.cmp(relcontent.name,
+                    os.path.join(unicode(tmpdir), 'metadata', 'relationship',
+                                 os.path.basename(relcontent.name)))
+
     def test_create_bag(self, tmpdir):
         samplebag = SampleBaggee()
         # create a temporary file to act as data payload
         samplecontent = tempfile.NamedTemporaryFile()
         samplebag.files.append(samplecontent.name)
+        source_org = "Main Library"
+        source_address = "Eagle Row"
+        samplebag.info = {"Source-Organization": source_org,
+                          "Organization-Address": source_address}
         samplecontent_basename = os.path.basename(samplecontent.name)
         # add descriptive metadata
         samplebag.desc_metadata.append(self.marcxml_file)
@@ -109,6 +129,10 @@ class TestBaggee:
         # are set in our bags
         assert bag.version
         assert bag.encoding
+
+        # check that bag info metadata was passed through
+        assert bag.info['Source-Organization'] == source_org
+        assert bag.info['Organization-Address'] == source_address
 
         # by default, we want to create both md5 and sha256 manifests
         manifest_names = [os.path.basename(manifest)

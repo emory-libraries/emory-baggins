@@ -13,7 +13,6 @@ Large Scale Digitization Initiative (LSDI) content.
 from cached_property import cached_property
 from eulxml import xmlmap
 import requests
-from pymarc import MARCReader
 import pymarc
 
 
@@ -80,6 +79,11 @@ class Item(xmlmap.XmlObject):
     ocr_file = xmlmap.StringField('ocr_file')
     #: path to marc xml file
     marc_path = xmlmap.StringField('marc_file')
+
+    #: collection id
+    collection_id = xmlmap.IntegerField('collection/@id')
+    #: collection name
+    collection_name = xmlmap.StringField('collection')
 
     # NOTE: these mappings are incomplete, and only include what was pused
     # for readux page ingest; we will likely need to add more mappings

@@ -37,6 +37,12 @@ class Baggee(object):
         if getattr(self, 'title', None):
             return getattr(self, 'title')
 
+    def bag_info(self):
+        '''Optional metadata to be included in Bag info.  Should return
+        a dictionary to be passed to the bagit make_bag method.
+        '''
+        return {}
+
     def data_files(self):
         '''List of files to be included in the bag as payload content.'''
         return []
@@ -44,6 +50,12 @@ class Baggee(object):
     def descriptive_metadata(self):
         '''List of files to be included in the bag as descriptive metadata
          content.'''
+        return []
+
+    def relationship_metadata(self):
+        '''List of files to be included in the bag as relationship metadata
+         content.  Should include one or both of human-readable.txt
+         and machine-readable.txt'''
         return []
 
     # internal methods that probably shouldn't be extended for most
@@ -109,6 +121,18 @@ class Baggee(object):
             # mdata_base = os.path.basename(mdata_file)
             # os.chmod(os.path.join(metadata_dir, mdata_base), 0664)
 
+        # return dir in case extending class wants to use it
+        return metadata_dir
+
+    def add_relationship_metadata(self, bagdir):
+        rel_dir = os.path.join(bagdir, 'metadata', 'relationship')
+        os.makedirs(rel_dir)
+        for rel_file in self.relationship_metadata():
+            shutil.copy2(rel_file, rel_dir)
+
+        # return dir in case extending class wants to use it
+        return rel_dir
+
     def create_bag(self, basedir):
         '''Create a bagit bag for this item.'''
         bagdir = os.path.join(basedir, self.bag_name())
@@ -132,8 +156,13 @@ class Baggee(object):
         # descriptive metadata
         self.add_descriptive_metadata(bagdir)
 
-        # create the bag
-        bag = bagit.make_bag(bagdir, checksum=self.checksum_algorithms)
+        # relationship metadata
+        self.add_relationship_metadata(bagdir)
+
+        # create the bag, passing in any bag metadata and configured
+        # checksum algorithms
+        bag = bagit.make_bag(bagdir, self.bag_info(),
+                             checksum=self.checksum_algorithms)
 
         # NOTE: to add metadata as tag files (once there is a version of
         # python-bagit that supports it), add the tagfile content to the
