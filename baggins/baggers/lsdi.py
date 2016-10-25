@@ -116,9 +116,9 @@ class LsdiBaggee(bag.Baggee):
         # if itme has a pid, look up related objects in fedora
         if self.item.pid:
             vol = self.repo.get_object('emory:%s' % self.item.pid, type=Volume)
-            # TODO: should error or warn if objects don't exist
-            # if not vol.exists:
-                # print "volume %s doesn't exist" % vol.pid
+            if not vol.exists:
+                print "volume %s doesn't exist or Fedora connection failed" % vol.pid
+
             if vol.exists:
                 # parent book info
                 if vol.book.exists:
