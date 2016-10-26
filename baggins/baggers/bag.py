@@ -58,6 +58,11 @@ class Baggee(object):
          and machine-readable.txt'''
         return []
 
+    def content_metadata(self):
+        '''List of files to be included in the bag as content metadata
+         content.  Should include mets.xml'''
+        return []
+
     # internal methods that probably shouldn't be extended for most
     # use cases
 
@@ -124,6 +129,16 @@ class Baggee(object):
         # return dir in case extending class wants to use it
         return metadata_dir
 
+    def add_content_metadata(self, bagdir):
+        content_metadata_dir = os.path.join(bagdir, 'metadata', 'content')
+        os.makedirs(content_metadata_dir)
+        for mdata_file in self.content_metadata():
+            print mdata_file
+            
+
+        # return dir in case extending class wants to use it
+        return content_metadata_dir
+
     def add_relationship_metadata(self, bagdir):
         rel_dir = os.path.join(bagdir, 'metadata', 'relationship')
         os.makedirs(rel_dir)
@@ -155,6 +170,9 @@ class Baggee(object):
 
         # descriptive metadata
         self.add_descriptive_metadata(bagdir)
+
+        # content metadata
+        self.add_content_metadata(bagdir)
 
         # relationship metadata
         self.add_relationship_metadata(bagdir)

@@ -94,7 +94,6 @@ class Item(xmlmap.XmlObject):
         with open(self.marc_path, 'r') as marcdata:
             return pymarc.parse_xml_to_array(marcdata)[0]
 
-
 class Items(xmlmap.XmlObject):
     ''':class:`~eulxml.xmlmap.XmlObject` for the response returned by getItems.
     Has a count of the number of items found, and a list of :class:`Item`

@@ -1,0 +1,112 @@
+<mets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:premis="http://purl.org/dc/elements/1.1/premis" xmlns:mix="http://purl.org/dc/elements/1.1/mix" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.loc.gov/METS/" xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd http://www.loc.gov/mix/v20 http://www.loc.gov/standards/mix/mix20/mix20.xsd">
+  <metsHdr CREATEDATE="2016-09-15T08:38:59" RECORDSTATUS="Complete">
+  </metsHdr>
+  <dmdSec ID="DMD1">
+  </dmdSec>
+  <fileSec>
+    <fileGrp ID="TIFF">
+      <file ID="TIF0001" MIMETYPE="image/tiff">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0001.tif"/>
+      </file>
+      <file ID="TIF0002" MIMETYPE="image/tiff">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0002.tif"/>
+      </file>
+      <file ID="TIF0003" MIMETYPE="image/tiff">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0003.tif"/>
+      </file>
+      <file ID="TIF0004" MIMETYPE="image/tiff">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0004.tif"/>
+      </file>
+      <file ID="TIF0005" MIMETYPE="image/tiff">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0005.tif"/>
+      </file>
+      <file ID="TIF0006"  MIMETYPE="image/tiff">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0006.tif"/>
+      </file>
+    </fileGrp>
+    <fileGrp ID="POS">
+      <file ID="POS0001" MIMETYPE="application/alto">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0001.pos"/>
+      </file>
+      <file ID="POS0002" MIMETYPE="application/alto">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0002.pos"/>
+      </file>
+      <file ID="POS0003" MIMETYPE="application/alto">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0003.pos"/>
+      </file>
+      <file ID="POS0004" MIMETYPE="application/alto">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0004.pos"/>
+      </file>
+      <file ID="POS0005" MIMETYPE="application/alto">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0005.pos"/>
+      </file>
+      <file ID="POS0006" MIMETYPE="application/alto">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0006.pos"/>
+      </file>
+    </fileGrp>
+    <fileGrp ID="TXT">
+      <file ID="TXT0001" MIMETYPE="plain/text">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0001.txt"/>
+      </file>
+      <file ID="TXT0002" MIMETYPE="plain/text">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0002.txt"/>
+      </file>
+      <file ID="TXT0003" MIMETYPE="plain/text">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0003.txt"/>
+      </file>
+      <file ID="TXT0004" MIMETYPE="plain/text">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0004.txt"/>
+      </file>
+      <file ID="TXT0005" MIMETYPE="plain/text">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0005.txt"/>
+      </file>
+      <file ID="TXT0006" MIMETYPE="plain/text">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/0006.txt"/>
+      </file>
+    </fileGrp>
+    <fileGrp ID="PDF">
+      <file ID="PDF0001" MIMETYPE="application/pdf">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/Output.pdf"/>
+      </file>
+    </fileGrp> 
+    <fileGrp ID="AFR">
+      <file ID="AFR0001" MIMETYPE="text/xml">
+        <FLocat LOCTYPE="URL" xlink:href="../../data/Output.xml"/>
+      </file>
+    </fileGrp> 
+  </fileSec>
+  <structMap TYPE="physical">
+    <div DMDID="DMD1" LABEL="" TYPE="volume">
+      <div ORDER="1" TYPE="page">
+        <fptr FILEID="TIF0001"/>
+        <fptr FILEID="POS0001"/>
+        <fptr FILEID="TXT0001"/>
+      </div>
+      <div ORDER="2" TYPE="page">
+        <fptr FILEID="TIF0002"/>
+        <fptr FILEID="POS0002"/>
+        <fptr FILEID="TXT0002"/>
+      </div>
+      <div ORDER="3" TYPE="page">
+        <fptr FILEID="TIF0003"/>
+        <fptr FILEID="POS0003"/>
+        <fptr FILEID="TXT0003"/>
+      </div>
+      <div ORDER="4" TYPE="page">
+        <fptr FILEID="TIF0004"/>
+        <fptr FILEID="POS0004"/>
+        <fptr FILEID="TXT0004"/>
+      </div>
+      <div ORDER="5" TYPE="page">
+        <fptr FILEID="TIF0005"/>
+        <fptr FILEID="POS0005"/>
+        <fptr FILEID="TXT0005"/>
+      </div>
+      <div ORDER="6" TYPE="page">
+        <fptr FILEID="TIF0006"/>
+        <fptr FILEID="POS0006"/>
+        <fptr FILEID="TXT0006"/>
+      </div>
+    </div>
+  </structMap>
+</mets>

@@ -15,6 +15,7 @@ from baggins.lsdi.collections import CollectionSources
 from baggins.lsdi.digwf import Client
 from baggins.lsdi.fedora import Volume
 from baggins.baggers import bag
+from baggins.lsdi.mets import Mets, METSFile
 
 
 class LsdiBaggee(bag.Baggee):
@@ -113,7 +114,7 @@ class LsdiBaggee(bag.Baggee):
                 'name': str(self.item.collection_name)
             }
         }
-        # if itme has a pid, look up related objects in fedora
+        # if item has a pid, look up related objects in fedora
         if self.item.pid:
             vol = self.repo.get_object('emory:%s' % self.item.pid, type=Volume)
             if not vol.exists:
@@ -146,6 +147,33 @@ class LsdiBaggee(bag.Baggee):
 
         return rel_info
 
+    def mets_metadata_info(self):
+        #list all files in the bag in mets format and for struct map for it
+        mets = Mets()
+        for file in self.data_files:
+            filename, file_extension = os.path.splitext(file)
+            if file_extension == ".TIF" or file_extension == ".tif":
+                tif_file = METSFile(id="TIF%s" % os.path.basename(file), mimetype="image/tiff", loctype="URL", href=file)
+                mets.tiffs.append(tif_file)
+            if file_extension == ".jpg":
+                jpg_file = METSFile(id="JPG%s" % os.path.basename(file), mimetype="image/jpg", loctype="URL", href=file)
+                mets.jpgs.append(jpg_file)
+            if file_extension == ".jp2s":
+                jp2_file = METSFile(id="JP2%s" % os.path.basename(file), mimetype="image/jp2", loctype="URL", href=file)
+                mets.jp2s.append(jp2_file)
+            if file_extension == ".txt":
+                txt_file = METSFile(id="TXT%s" % os.path.basename(file), mimetype="plain/text", loctype="URL", href=file)
+                mets.txts.append(txt_file)
+            if file_extension == ".pdf":
+                pdf_file = METSFile(id="PDF%s" % os.path.basename(file), mimetype="application/pdf", loctype="URL", href=file)
+                mets.pdfs.append(pdf_file)
+            if file_extension == ".pos":
+                pos_file = METSFile(id="POS%s" % os.path.basename(file), mimetype="application/alto", loctype="URL", href=file)
+                mets.pos.append(pos_file)
+
+        return mets
+
+
     def add_relationship_metadata(self, bagdir):
         # override default implementation, since we don't just want to
         # copy existig content in, but need to output content
@@ -153,6 +181,15 @@ class LsdiBaggee(bag.Baggee):
         rel_file = os.path.join(rel_dir, 'machine-relationship.txt')
         with open(rel_file, 'w') as outfile:
             yaml.dump(self.relationship_metadata_info(), outfile,
+                      default_flow_style=False)
+
+    def add_content_metadata(self, bagdir):
+        # override default implementation, since we don't just want to
+        # copy existig content in, but need to output content
+        rel_dir = super(LsdiBaggee, self).add_content_metadata(bagdir)
+        rel_file = os.path.join(rel_dir, '%s.mets.xml' % self.item.pid)
+        with open(rel_file, 'w') as outfile:
+            yaml.dump(self.mets_metadata_info(), outfile,
                       default_flow_style=False)
 
 
