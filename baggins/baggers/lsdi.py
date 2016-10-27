@@ -154,7 +154,7 @@ class LsdiBaggee(bag.Baggee):
     def mets_metadata_info(self):
         #list all files in the bag in mets format and for struct map for it
         mets = Mets()
-        for file in self.data_files():
+        for file in self.page_text_files():
             filename, file_extension = os.path.splitext(file)
             if file_extension == ".TIF" or file_extension == ".tif":
                 tif_file = METSFile(id="TIF%s" % os.path.basename(file), mimetype="image/tiff", loctype="URL", href=file)
