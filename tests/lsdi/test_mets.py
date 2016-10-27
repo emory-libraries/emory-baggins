@@ -12,5 +12,3 @@ class TestMets:
 
     def test_mets(self):
     	response = load_xmlobject_from_file(self.mets_response, mets.Mets)
-    	print response.create_tiffs
-    	assert response == 1
