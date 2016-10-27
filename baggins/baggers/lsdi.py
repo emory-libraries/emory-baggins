@@ -4,11 +4,13 @@ Bagging logic for LSDI digitized book content.
 '''
 
 import argparse
+from optparse import OptionParser
 from ConfigParser import ConfigParser, NoOptionError, NoSectionError
 import glob
 import os
 import requests
 import yaml
+import sys
 
 from eulfedora.server import Repository
 from baggins.lsdi.collections import CollectionSources
@@ -16,6 +18,8 @@ from baggins.lsdi.digwf import Client
 from baggins.lsdi.fedora import Volume
 from baggins.baggers import bag
 from baggins.lsdi.mets import Mets, METSFile
+
+sys.tracebacklimit = 0
 
 
 class LsdiBaggee(bag.Baggee):
@@ -210,6 +214,10 @@ class LsdiBagger(object):
         parser.add_argument('-f', '--file', metavar='FILE',
                             help='Digitization Workflow File With Item IDs')
 
+        parser.add_argument("-v", "--verbose",
+                  action="store_true", dest="verbose",
+                  help="print status messages to stdout and traceback")
+
         parser.add_argument('-o', '--output', metavar='OUTPUT_DIR',
                             help='Directory for generated bag content')
 
@@ -230,6 +238,10 @@ class LsdiBagger(object):
         if self.options.gen_config:
             self.generate_configfile()
             exit()
+
+        if self.options.verbose:
+            sys.tracebacklimit = 5
+            
 
         if self.options.file:
             self.options.item_ids = self.load_ids_from_file()

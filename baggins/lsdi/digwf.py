@@ -14,6 +14,7 @@ from cached_property import cached_property
 from eulxml import xmlmap
 import requests
 import pymarc
+import sys
 
 
 class Client(object):
