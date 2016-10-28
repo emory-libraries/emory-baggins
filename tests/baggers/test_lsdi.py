@@ -246,12 +246,11 @@ class TestLsdiBagger:
 
         lbag.process_items()
 
-
         # digwf api should be called once for each item
         output = capsys.readouterr()
         for test_id in test_ids:
             assert call(item_id=test_id) in mockdigwf_api.get_items.mock_calls
-            assert 'No item found for this item id %s' % test_id \
+            assert 'No item found for item id %s' % test_id \
                 in output[0]
 
     @patch('baggins.baggers.lsdi.Client')
@@ -266,7 +265,7 @@ class TestLsdiBagger:
         mockdigwf_api.get_items.return_value.count = 5
         lbag.process_items()
         output = capsys.readouterr()
-        assert 'Error! DigWF returned 5 matches for this item id %s' % test_id \
+        assert 'Error! DigWF returned 5 matches for item id %s' % test_id \
             in output[0]
 
     @patch('baggins.baggers.lsdi.Repository')
