@@ -17,7 +17,7 @@ from baggins.lsdi.collections import CollectionSources
 from baggins.lsdi.digwf import Client
 from baggins.lsdi.fedora import Volume
 from baggins.baggers import bag
-from baggins.lsdi.mets import Mets, METSFile
+from baggins.lsdi.mets import Mets, METSFile, METSMap
 
 sys.tracebacklimit = 0
 
@@ -154,7 +154,8 @@ class LsdiBaggee(bag.Baggee):
     def mets_metadata_info(self):
         #list all files in the bag in mets format and for struct map for it
         mets = Mets()
-        for file in self.page_text_files():
+        data_files = self.data_files()
+        for idx, file in enumerate(data_files):
             filename, file_extension = os.path.splitext(file)
             if file_extension == ".TIF" or file_extension == ".tif":
                 tif_file = METSFile(id="TIF%s" % os.path.basename(file), mimetype="image/tiff", loctype="URL", href=file)
@@ -174,9 +175,18 @@ class LsdiBaggee(bag.Baggee):
             if file_extension == ".pos":
                 pos_file = METSFile(id="POS%s" % os.path.basename(file), mimetype="application/alto", loctype="URL", href=file)
                 mets.pos.append(pos_file)
+            if file_extension == ".xml":
+                afr_file = METSFile(id="AFR%s" % os.path.basename(file), mimetype="text/xml", loctype="URL", href=file)
+                mets.afrs.append(afr_file)
+
+            pid_struct = METSMap(order=int(filename), page_type='page', fileid=file_extension[1:]+filename)
+            matching = [s for s in data_files if filename in s]
+            if len(matching) == 3:
+                mets.structmap.append(pid_struct)
+            else:
+                print 'Error! Some files are missing in the volume %s' % matching
 
         return mets
-
 
     def add_relationship_metadata(self, bagdir):
         # override default implementation, since we don't just want to

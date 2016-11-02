@@ -37,9 +37,6 @@ class METSMap(xmlmap.XmlObject):
         'mets': 'http://www.loc.gov/METS/'
     }
 
-    dmdid = StringField('@DMDID')
-    label = StringField('@LABEL')
-    map_type = StringField('@TYPE')
     order = StringField('mets:div/@ORDER')
     page_type = StringField('mets:div/@TYPE')
     fileid = StringField('mets:div/fptr/@FILEID')
@@ -68,8 +65,9 @@ class Mets(xmlmap.XmlObject):
     txts = NodeListField('mets:fileSec/mets:fileGrp[@ID="TXT"]/mets:file', METSFile)
     jpgs = NodeListField('mets:fileSec/mets:fileGrp[@ID="JPEG"]/mets:file', METSFile)
     jp2s = NodeListField('mets:fileSec/mets:fileGrp[@ID="JP2000"]/mets:file', METSFile)
-    altos = NodeListField('mets:fileSec/mets:fileGrp[@ID="ALTO"]/mets:file', METSFile)
+    pos = NodeListField('mets:fileSec/mets:fileGrp[@ID="ALTO"]/mets:file', METSFile)
     pdfs = NodeListField('mets:fileSec/mets:fileGrp[@ID="PDF"]/mets:file', METSFile)
-    structmap = NodeListField('mets:structMap[@TYPE="physical"]/mets:div', METSMap)
+    afrs = NodeListField('mets:fileSec/mets:fileGrp[@ID="AFR"]/mets:file', METSFile)
+    structmap = NodeListField('mets:structMap[@TYPE="physical"]/mets:div[@DMDID="DMD1"][@LABEL=""][@TYPE="volume"]', METSMap)
     techmd = NodeListField('mets:amdSec/mets:techMD[starts-with(@ID, "AMD_TECHMD_TIF") or starts-with(@ID, "AMD_TECHMD_JPG") or starts-with(@ID, "AMD_TECHMD_JP2")]', METStechMD)
 
