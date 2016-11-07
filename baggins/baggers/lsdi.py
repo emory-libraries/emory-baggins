@@ -179,12 +179,13 @@ class LsdiBaggee(bag.Baggee):
                 afr_file = METSFile(id="AFR%s" % os.path.basename(file), mimetype="text/xml", loctype="URL", href=file)
                 mets.afrs.append(afr_file)
 
-            pid_struct = METSMap(order=int(filename), page_type='page', fileid=file_extension[1:]+filename)
-            matching = [s for s in data_files if filename in s]
-            if len(matching) == 3:
-                mets.structmap.append(pid_struct)
-            else:
-                print 'Error! Some files are missing in the volume %s' % matching
+            if filename.isdigit():
+                pid_struct = METSMap(order=int(filename), page_type='page', fileid=file_extension[1:]+filename)
+                matching = [s for s in data_files if filename in s]
+                if len(matching) == 3:
+                    mets.structmap.append(pid_struct)
+                else:
+                    print 'Error! Some files are missing in the volume %s' % matching
 
         return mets
 
