@@ -11,6 +11,7 @@ import os
 import requests
 import yaml
 import sys
+import re
 
 from eulfedora.server import Repository
 from baggins.lsdi.collections import CollectionSources
@@ -180,15 +181,17 @@ class LsdiBaggee(bag.Baggee):
                 afr_file = METSFile(id="AFR%s" % filename, mimetype="text/xml", loctype="URL", href=file)
                 mets.afrs.append(afr_file)
             split_str = filename.split("_")
+            split_char = re.split('(\d+)',split_str[-1])
             if split_str[-1].isdigit():
-                pid_struct = METSMap(order=int(split_str[-1]), page_type='page', fileid=file_extension[1:]+split_str[-1])
                 matching = [s for s in data_files if filename in s]
-                if len(matching) == 3:
+                if len(matching) == 3 and file_extension != '.pos' and file_extension != '.txt':
+                    pid_struct = METSMap(order=int(split_str[-1]), page_type='page', tif="TIF"+split_str[-1], pos="POS"+split_str[-1])
+                    pid_struct.txt = "TXT"+split_str[-1]
                     mets.structmap.append(pid_struct)
                 else:
                     print 'Error! Some files are missing in the volume %s' % matching
 
-        return mets.serialize()
+        return mets.serialize(pretty=True)
 
     def add_relationship_metadata(self, bagdir):
         # override default implementation, since we don't just want to
@@ -206,8 +209,9 @@ class LsdiBaggee(bag.Baggee):
         rel_file = os.path.join(rel_dir, '%s.mets.xml' % self.item.pid)
         print self.mets_metadata_info()
         with open(rel_file, 'w') as outfile:
-            yaml.dump(self.mets_metadata_info(), outfile,
-                      default_flow_style=False)
+            outfile.write(self.mets_metadata_info())
+            # yaml.dump(self.mets_metadata_info(), outfile,
+            #           default_flow_style=True)
 
 
 class LsdiBagger(object):
