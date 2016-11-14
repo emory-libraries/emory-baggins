@@ -181,14 +181,14 @@ class LsdiBaggee(bag.Baggee):
                 mets.afrs.append(afr_file)
             split_str = filename.split("_")
             if split_str[-1].isdigit():
-                pid_struct = METSMap(order=int(filename), page_type='page', fileid=file_extension[1:]+filename)
+                pid_struct = METSMap(order=int(split_str[-1]), page_type='page', fileid=file_extension[1:]+split_str[-1])
                 matching = [s for s in data_files if filename in s]
                 if len(matching) == 3:
                     mets.structmap.append(pid_struct)
                 else:
                     print 'Error! Some files are missing in the volume %s' % matching
 
-        return mets
+        return mets.serialize()
 
     def add_relationship_metadata(self, bagdir):
         # override default implementation, since we don't just want to
@@ -204,6 +204,7 @@ class LsdiBaggee(bag.Baggee):
         # copy existig content in, but need to output content
         rel_dir = super(LsdiBaggee, self).add_content_metadata(bagdir)
         rel_file = os.path.join(rel_dir, '%s.mets.xml' % self.item.pid)
+        print self.mets_metadata_info()
         with open(rel_file, 'w') as outfile:
             yaml.dump(self.mets_metadata_info(), outfile,
                       default_flow_style=False)
@@ -248,6 +249,7 @@ class LsdiBagger(object):
         # if requested, generate an empty config file that can be filled in
         # and then quit
         if self.options.gen_config:
+            print 'Generating an empty config file'
             self.generate_configfile()
             exit()
 
