@@ -19,9 +19,10 @@ from eulxml.xmlmap.core import StringField, IntegerField, NodeListField
 # METS XML
 class METSFile(xmlmap.XmlObject):
     ROOT_NAME = 'file'
+    ROOT_NS = "http://www.loc.gov/METS/"
     ROOT_NAMESPACES = {
+        'mets': ROOT_NS,
         'xlink' : "http://www.w3.org/1999/xlink",
-        'mets': 'http://www.loc.gov/METS'
     }
 
     id = StringField('@ID')
@@ -32,23 +33,24 @@ class METSFile(xmlmap.XmlObject):
 
 class METSMap(xmlmap.XmlObject):
     ROOT_NAME = 'div'
+    ROOT_NS = "http://www.loc.gov/METS/"
     ROOT_NAMESPACES = {
+        'mets': ROOT_NS,
         'xlink' : "http://www.w3.org/1999/xlink",
-        'mets': 'http://www.loc.gov/METS',
     }
 
-    order = StringField('mets:div/@ORDER')
-    page_type = StringField('mets:div/@TYPE')
-    tif = StringField('mets:div/mets:fptr[1]/@FILEID')
-    pos = StringField('mets:div/mets:fptr[2]/@FILEID')
-    txt = StringField('mets:div/mets:fptr[3]/@FILEID')
+    order = StringField('@ORDER')
+    page_type = StringField('@TYPE')
+    tif = StringField('mets:fptr[1]/@FILEID')
+    pos = StringField('mets:fptr[2]/@FILEID')
+    txt = StringField('mets:fptr[3]/@FILEID')
 
 #TODO make schemas and namespaces local
 class METStechMD(xmlmap.XmlObject):
     ROOT_NAME = 'techMD'
     ROOT_NAMESPACES = {
         'mix': 'http://www.loc.gov/mix/v20',
-        'mets': 'http://www.loc.gov/METS'
+        'mets': 'http://www.loc.gov/METS/'
     }
 
     id = StringField('@ID')
@@ -61,8 +63,9 @@ class Mets(xmlmap.XmlObject):
     # XSD_SCHEMA = "http://www.loc.gov/standards/mets/mets.xsd"
     # xmlschema = xmlmap.loadSchema(XSD_SCHEMA)
     ROOT_NAME = 'mets'
+    ROOT_NS = "http://www.loc.gov/METS/"
     ROOT_NAMESPACES = {
-        'mets': 'http://www.loc.gov/METS',
+        'mets': ROOT_NS,
         'xlink' : "http://www.w3.org/1999/xlink",
         'xsi': "http://www.w3.org/2001/XMLSchema-instance",
         'dc': "http://purl.org/dc/elements/1.1/",
@@ -79,6 +82,6 @@ class Mets(xmlmap.XmlObject):
     pos = NodeListField('mets:fileSec/mets:fileGrp[@ID="ALTO"]/mets:file', METSFile)
     pdfs = NodeListField('mets:fileSec/mets:fileGrp[@ID="PDF"]/mets:file', METSFile)
     afrs = NodeListField('mets:fileSec/mets:fileGrp[@ID="AFR"]/mets:file', METSFile)
-    structmap = NodeListField('mets:structMap[@TYPE="physical"]/mets:div[@DMDID="DMD1"][@LABEL=""][@TYPE="volume"]', METSMap)
+    structmap = NodeListField('mets:structMap[@TYPE="physical"]/mets:div[@DMDID="DMD1"][@LABEL=""][@TYPE="volume"]/mets:div', METSMap)
     techmd = NodeListField('mets:amdSec/mets:techMD[starts-with(@ID, "AMD_TECHMD_TIF") or starts-with(@ID, "AMD_TECHMD_JPG") or starts-with(@ID, "AMD_TECHMD_JP2")]', METStechMD)
 
