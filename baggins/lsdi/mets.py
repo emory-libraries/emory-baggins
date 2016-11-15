@@ -21,34 +21,34 @@ class METSFile(xmlmap.XmlObject):
     ROOT_NAME = 'file'
     ROOT_NAMESPACES = {
         'xlink' : "http://www.w3.org/1999/xlink",
-        'mets': 'http://www.loc.gov/METS/',
+        'mets': 'http://www.loc.gov/METS'
     }
 
     id = StringField('@ID')
     admid = StringField('@ADMID')
     mimetype = StringField('@MIMETYPE')
-    loctype = StringField('FLocat/@LOCTYPE')
-    href = StringField('FLocat/@xlink:href')
+    loctype = StringField('mets:FLocat/@LOCTYPE')
+    href = StringField('mets:FLocat/@xlink:href')
 
 class METSMap(xmlmap.XmlObject):
     ROOT_NAME = 'div'
     ROOT_NAMESPACES = {
         'xlink' : "http://www.w3.org/1999/xlink",
-        'mets': 'http://www.loc.gov/METS/'
+        'mets': 'http://www.loc.gov/METS',
     }
 
-    order = StringField('div/@ORDER')
-    page_type = StringField('div/@TYPE')
-    tif = StringField('div/fptr[1]/@FILEID')
-    pos = StringField('div/fptr[2]/@FILEID')
-    txt = StringField('div/fptr[3]/@FILEID')
+    order = StringField('mets:div/@ORDER')
+    page_type = StringField('mets:div/@TYPE')
+    tif = StringField('mets:div/mets:fptr[1]/@FILEID')
+    pos = StringField('mets:div/mets:fptr[2]/@FILEID')
+    txt = StringField('mets:div/mets:fptr[3]/@FILEID')
 
 #TODO make schemas and namespaces local
 class METStechMD(xmlmap.XmlObject):
     ROOT_NAME = 'techMD'
     ROOT_NAMESPACES = {
         'mix': 'http://www.loc.gov/mix/v20',
-        'mets': 'http://www.loc.gov/METS/'
+        'mets': 'http://www.loc.gov/METS'
     }
 
     id = StringField('@ID')
@@ -58,11 +58,12 @@ class METStechMD(xmlmap.XmlObject):
     checksum = StringField('mets:mdWrap/mets:xmlData/mix:mix/mix:BasicDigitalObjectInformation/mix:Fixity/mix:messageDigest')
 
 class Mets(xmlmap.XmlObject):
-    XSD_SCHEMA = "http://www.loc.gov/standards/mets/mets.xsd"
+    # XSD_SCHEMA = "http://www.loc.gov/standards/mets/mets.xsd"
+    # xmlschema = xmlmap.loadSchema(XSD_SCHEMA)
     ROOT_NAME = 'mets'
     ROOT_NAMESPACES = {
+        'mets': 'http://www.loc.gov/METS',
         'xlink' : "http://www.w3.org/1999/xlink",
-        'mets': 'http://www.loc.gov/METS/',
         'xsi': "http://www.w3.org/2001/XMLSchema-instance",
         'dc': "http://purl.org/dc/elements/1.1/",
         'premis' : "http://purl.org/dc/elements/1.1/premis",

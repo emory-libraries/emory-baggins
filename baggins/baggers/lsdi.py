@@ -299,6 +299,13 @@ class LsdiBagger(object):
                 print 'Found item %s (pid %s, control key %s, marc %s)' % \
                     (item_id, item.pid or '-', item.control_key,
                      item.marc_path)
+                try:
+                    repo.get_object(pid=item.pid)
+                except requests.exceptions.HTTPError as err:
+                    print 'Error querying Fedora REST API for %s: %s' % (item.pid, err)
+                    continue
+
+
             elif result.count == 0:
                 print 'No item found for this item id %s' % item_id
                 continue
