@@ -64,6 +64,8 @@ class Mets(xmlmap.XmlObject):
     # xmlschema = xmlmap.loadSchema(XSD_SCHEMA)
     ROOT_NAME = 'mets'
     ROOT_NS = "http://www.loc.gov/METS/"
+    XSD_SCHEMA = "http://www.loc.gov/standards/mets/mets.xsd"
+    xmlschema = xmlmap.loadSchema(XSD_SCHEMA)
     ROOT_NAMESPACES = {
         'mets': ROOT_NS,
         'xlink' : "http://www.w3.org/1999/xlink",
@@ -74,7 +76,7 @@ class Mets(xmlmap.XmlObject):
 
     }
 
-    #x = NodeListField('mets:fileSec/mets:fileGrp', METSFile)
+    dmd = xmlmap.NodeField('mets:dmdSec[@ID="DMD1"]',"self")
     tiffs = NodeListField('mets:fileSec/mets:fileGrp[@ID="TIFF"]/mets:file', METSFile)
     txts = NodeListField('mets:fileSec/mets:fileGrp[@ID="TXT"]/mets:file', METSFile)
     jpgs = NodeListField('mets:fileSec/mets:fileGrp[@ID="JPEG"]/mets:file', METSFile)

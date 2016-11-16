@@ -155,33 +155,35 @@ class LsdiBaggee(bag.Baggee):
     def mets_metadata_info(self):
         #list all files in the bag in mets format and for struct map for it
         mets = Mets()
-        data_files = self.data_files()
+        mets.create_dmd()
+        data_files = sorted(self.data_files())
         for idx, file in enumerate(data_files):
             file_name = os.path.split(file)
             filename, file_extension = os.path.splitext(file_name[1])
-            if file_extension == ".TIF" or file_extension == ".tif":
-                tif_file = METSFile(id="TIF%s" % filename, mimetype="image/tiff", loctype="URL", href=file)
-                mets.tiffs.append(tif_file)
-            if file_extension == ".jpg":
-                jpg_file = METSFile(id="JPG%s" % filename, mimetype="image/jpg", loctype="URL", href=file)
-                mets.jpgs.append(jpg_file)
-            if file_extension == ".jp2s":
-                jp2_file = METSFile(id="JP2%s" % filename, mimetype="image/jp2", loctype="URL", href=file)
-                mets.jp2s.append(jp2_file)
-            if file_extension == ".txt":
-                txt_file = METSFile(id="TXT%s" % filename, mimetype="plain/text", loctype="URL", href=file)
-                mets.txts.append(txt_file)
-            if file_extension == ".pdf":
-                pdf_file = METSFile(id="PDF%s" % filename, mimetype="application/pdf", loctype="URL", href=file)
-                mets.pdfs.append(pdf_file)
-            if file_extension == ".pos":
-                pos_file = METSFile(id="POS%s" % filename, mimetype="application/alto", loctype="URL", href=file)
-                mets.pos.append(pos_file)
-            if file_extension == ".xml":
-                afr_file = METSFile(id="AFR%s" % filename, mimetype="text/xml", loctype="URL", href=file)
-                mets.afrs.append(afr_file)
             split_str = filename.split("_")
             split_char = re.split('(\d+)',split_str[-1])
+            if file_extension == ".TIF" or file_extension == ".tif":
+                tif_file = METSFile(id="TIF%s" % split_str[-1], mimetype="image/tiff", loctype="URL", href=file_name[1])
+                mets.tiffs.append(tif_file)
+            if file_extension == ".jpg":
+                jpg_file = METSFile(id="JPG%s" % split_str[-1], mimetype="image/jpg", loctype="URL", href=file_name[1])
+                mets.jpgs.append(jpg_file)
+            if file_extension == ".jp2s":
+                jp2_file = METSFile(id="JP2%s" % split_str[-1], mimetype="image/jp2", loctype="URL", href=file_name[1])
+                mets.jp2s.append(jp2_file)
+            if file_extension == ".txt":
+                txt_file = METSFile(id="TXT%s" % split_str[-1], mimetype="plain/text", loctype="URL", href=file_name[1])
+                mets.txts.append(txt_file)
+            if file_extension == ".pdf":
+                pdf_file = METSFile(id="PDF%s" % split_str[-1], mimetype="application/pdf", loctype="URL", href=file_name[1])
+                mets.pdfs.append(pdf_file)
+            if file_extension == ".pos":
+                pos_file = METSFile(id="POS%s" % split_str[-1], mimetype="application/alto", loctype="URL", href=file_name[1])
+                mets.pos.append(pos_file)
+            if file_extension == ".xml":
+                afr_file = METSFile(id="AFR%s" % split_str[-1], mimetype="text/xml", loctype="URL", href=file_name[1])
+                mets.afrs.append(afr_file)
+            
             if split_str[-1].isdigit():
                 matching = [s for s in data_files if filename in s]
                 if len(matching) == 3 and file_extension != '.pos' and file_extension != '.txt':
