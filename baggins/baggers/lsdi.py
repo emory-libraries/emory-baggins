@@ -13,6 +13,7 @@ import yaml
 import sys
 import re
 
+from lxml import etree
 from eulfedora.server import Repository
 from baggins.lsdi.collections import CollectionSources
 from baggins.lsdi.digwf import Client
@@ -157,13 +158,18 @@ class LsdiBaggee(bag.Baggee):
         mets = Mets()
         mets.create_dmd()
         data_files = sorted(self.data_files())
+        tif_idx = 0
+        pos_idx = 0
+        txt_idx = 0
+        all_idx = 0
         for idx, file in enumerate(data_files):
             file_name = os.path.split(file)
             filename, file_extension = os.path.splitext(file_name[1])
             split_str = filename.split("_")
             split_char = re.split('(\d+)',split_str[-1])
             if file_extension == ".TIF" or file_extension == ".tif":
-                tif_file = METSFile(id="TIF%s" % split_str[-1], mimetype="image/tiff", loctype="URL", href=file_name[1])
+                tif_idx += 1
+                tif_file = METSFile(id="TIF%s" % str(tif_idx).zfill(4), mimetype="image/tiff", loctype="URL", href=file_name[1])
                 mets.tiffs.append(tif_file)
             if file_extension == ".jpg":
                 jpg_file = METSFile(id="JPG%s" % split_str[-1], mimetype="image/jpg", loctype="URL", href=file_name[1])
@@ -172,13 +178,15 @@ class LsdiBaggee(bag.Baggee):
                 jp2_file = METSFile(id="JP2%s" % split_str[-1], mimetype="image/jp2", loctype="URL", href=file_name[1])
                 mets.jp2s.append(jp2_file)
             if file_extension == ".txt":
-                txt_file = METSFile(id="TXT%s" % split_str[-1], mimetype="plain/text", loctype="URL", href=file_name[1])
+                txt_idx += 1
+                txt_file = METSFile(id="TXT%s" % str(txt_idx).zfill(4), mimetype="plain/text", loctype="URL", href=file_name[1])
                 mets.txts.append(txt_file)
             if file_extension == ".pdf":
                 pdf_file = METSFile(id="PDF%s" % split_str[-1], mimetype="application/pdf", loctype="URL", href=file_name[1])
                 mets.pdfs.append(pdf_file)
             if file_extension == ".pos":
-                pos_file = METSFile(id="POS%s" % split_str[-1], mimetype="application/alto", loctype="URL", href=file_name[1])
+                pos_idx +=1
+                pos_file = METSFile(id="POS%s" % str(pos_idx).zfill(4), mimetype="application/alto", loctype="URL", href=file_name[1])
                 mets.pos.append(pos_file)
             if file_extension == ".xml":
                 afr_file = METSFile(id="AFR%s" % split_str[-1], mimetype="text/xml", loctype="URL", href=file_name[1])
@@ -187,13 +195,16 @@ class LsdiBaggee(bag.Baggee):
             if split_str[-1].isdigit():
                 matching = [s for s in data_files if filename in s]
                 if len(matching) == 3 and file_extension != '.pos' and file_extension != '.txt':
-                    pid_struct = METSMap(order=int(split_str[-1]), page_type='page', tif="TIF"+split_str[-1], pos="POS"+split_str[-1])
+                    all_idx += 1
+                    pid_struct = METSMap(order=all_idx, page_type='page', tif="TIF"+split_str[-1], pos="POS"+split_str[-1])
                     pid_struct.txt = "TXT"+split_str[-1]
                     mets.structmap.append(pid_struct)
                 else:
                     print 'Error! Some files are missing in the volume %s' % matching
 
-        return mets.serialize(pretty=True)
+        root = etree.fromstring(mets.serialize(pretty=True))
+        root.attrib['{http://www.w3.org/2001/XMLSchema-instance}schemaLocation']= "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd"
+        return etree.tostring(root, pretty_print=True)
 
     def add_relationship_metadata(self, bagdir):
         # override default implementation, since we don't just want to
@@ -212,9 +223,6 @@ class LsdiBaggee(bag.Baggee):
         print self.mets_metadata_info()
         with open(rel_file, 'w') as outfile:
             outfile.write(self.mets_metadata_info())
-            # yaml.dump(self.mets_metadata_info(), outfile,
-            #           default_flow_style=True)
-
 
 class LsdiBagger(object):
     '''Logic for the lsdi-bagger script.  Handles argument parsing, config file
