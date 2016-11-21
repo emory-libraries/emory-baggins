@@ -66,6 +66,9 @@ class Item(xmlmap.XmlObject):
     #: control key (e.g., ocm or ocn number in euclid; unique per book,
     #: not per volume)
     control_key = xmlmap.StringField('@control_key')
+
+    #title
+    volume = xmlmap.StringField('volume')
     #: display image path
     display_image_path = xmlmap.StringField('display_images_path')
     #: display images count

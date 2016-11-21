@@ -47,9 +47,16 @@ class LsdiBaggee(bag.Baggee):
         source_info = CollectionSources.info_by_id(self.item.collection_id)
         return {
             'Source-Organization': source_info['organization'],
-            'Organization-Address': source_info['address']
+            'Organization-Address': source_info['address'],
+            'External-Description': self.external_description()
             # more to be added later...
         }
+
+    def external_description(self):
+        source_obj = CollectionSources.info_by_id(19)
+        volume = self.item.volume
+        desc = self.item.marc['245']['a'] + self.item.marc['245']['b'] + self.item.marc['245']['c'] + " " + volume + " " + self.item.marc['260']['a'] + self.item.marc['260']['b'] + self.item.marc['260']['c']
+        return desc
 
     def descriptive_metadata(self):
         '''List of descriptive metadata files to be included in the bag.
