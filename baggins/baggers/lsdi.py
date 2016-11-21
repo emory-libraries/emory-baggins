@@ -196,8 +196,8 @@ class LsdiBaggee(bag.Baggee):
                 matching = [s for s in data_files if filename in s]
                 if len(matching) == 3 and file_extension != '.pos' and file_extension != '.txt':
                     all_idx += 1
-                    pid_struct = METSMap(order=all_idx, page_type='page', tif="TIF"+split_str[-1], pos="POS"+split_str[-1])
-                    pid_struct.txt = "TXT"+split_str[-1]
+                    pid_struct = METSMap(order=all_idx, page_type='page', tif="TIF"+str(all_idx).zfill(4), pos="POS"+str(all_idx).zfill(4))
+                    pid_struct.txt = "TXT"+str(all_idx).zfill(4)
                     mets.structmap.append(pid_struct)
                 else:
                     print 'Error! Some files are missing in the volume %s' % matching
