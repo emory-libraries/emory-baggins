@@ -53,9 +53,10 @@ class LsdiBaggee(bag.Baggee):
         }
 
     def external_description(self):
-        source_obj = CollectionSources.info_by_id(19)
+        source_obj = CollectionSources.info_by_id(self.item.collection_id)
         volume = self.item.volume
-        desc = self.item.marc['245']['a'] + self.item.marc['245']['b'] + self.item.marc['245']['c'] + " " + volume + " " + self.item.marc['260']['a'] + self.item.marc['260']['b'] + self.item.marc['260']['c']
+        field_260 = self.item.marc['260'].get_subfields('a', 'a', 'b', 'c')
+        desc = self.item.marc['245']['a'] + ": " + self.item.marc['245']['b'] + " " + self.item.marc['245']['c'] + " " + volume + ". " + field_260[0] + " " + field_260[1] + " " + field_260[2] + " " + field_260[3]
         return desc
 
     def descriptive_metadata(self):
