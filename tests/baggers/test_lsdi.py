@@ -250,7 +250,7 @@ class TestLsdiBagger:
         output = capsys.readouterr()
         for test_id in test_ids:
             assert call(item_id=test_id) in mockdigwf_api.get_items.mock_calls
-            assert 'No item found for item id %s' % test_id \
+            assert 'No item found for this item id %s' % test_id \
                 in output[0]
 
     @patch('baggins.baggers.lsdi.Client')
@@ -265,7 +265,7 @@ class TestLsdiBagger:
         mockdigwf_api.get_items.return_value.count = 5
         lbag.process_items()
         output = capsys.readouterr()
-        assert 'Error! DigWF returned 5 matches for item id %s' % test_id \
+        assert 'Error! DigWF returned 5 matches for this item id %s' % test_id \
             in output[0]
 
     @patch('baggins.baggers.lsdi.Repository')
@@ -463,6 +463,9 @@ class TestLsdiBaggee:
     def test_descriptive_metadata(self, lsdibag):
         assert lsdibag.item.marc_path in lsdibag.descriptive_metadata()
 
+    def test_content_metadata(self,lsdibag):
+        print "passing"
+
     def test_relationship_metadata(self, lsdibag):
         # use mock for fedora repo object
         mockrepo = Mock()
@@ -511,7 +514,7 @@ class TestLsdiBaggee:
             mockrel.return_value = faux_rels
             lsdibag.add_relationship_metadata(unicode(tmpdir))
 
-        # file shuld have been created where expected
+        # file should have been created where expected
         expected_path = os.path.join(unicode(tmpdir), 'metadata',
                                      'relationship',
                                      'machine-relationship.txt')

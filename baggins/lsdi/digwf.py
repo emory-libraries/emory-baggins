@@ -14,6 +14,8 @@ from cached_property import cached_property
 from eulxml import xmlmap
 import requests
 import pymarc
+import os.path
+import sys
 
 
 class Client(object):
@@ -64,6 +66,9 @@ class Item(xmlmap.XmlObject):
     #: control key (e.g., ocm or ocn number in euclid; unique per book,
     #: not per volume)
     control_key = xmlmap.StringField('@control_key')
+
+    #title
+    volume = xmlmap.StringField('volume')
     #: display image path
     display_image_path = xmlmap.StringField('display_images_path')
     #: display images count
@@ -91,9 +96,11 @@ class Item(xmlmap.XmlObject):
     @cached_property
     def marc(self):
         # use pymarc to read the marcxml to make fields available
-        with open(self.marc_path, 'r') as marcdata:
-            return pymarc.parse_xml_to_array(marcdata)[0]
-
+        if os.path.exists(self.marc_path):
+            with open(self.marc_path, 'r') as marcdata:
+                return pymarc.parse_xml_to_array(marcdata)[0]
+        else:
+            print "Check if file %s exists or your mount connection" % self.marc_path
 
 class Items(xmlmap.XmlObject):
     ''':class:`~eulxml.xmlmap.XmlObject` for the response returned by getItems.

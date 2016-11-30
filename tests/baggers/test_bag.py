@@ -38,6 +38,9 @@ class SampleBaggee(Baggee):
     def relationship_metadata(self):
         return self.rel_metadata
 
+    def content_metadata(self):
+        return self.rel_metadata
+
 
 @pytest.mark.usefixtures("tmpdir")
 class TestBaggee:

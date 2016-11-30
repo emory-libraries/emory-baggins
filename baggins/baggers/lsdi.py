@@ -4,17 +4,24 @@ Bagging logic for LSDI digitized book content.
 '''
 
 import argparse
+from optparse import OptionParser
 from ConfigParser import ConfigParser, NoOptionError, NoSectionError
 import glob
 import os
 import requests
 import yaml
+import sys
+import re
 
+from lxml import etree
 from eulfedora.server import Repository
 from baggins.lsdi.collections import CollectionSources
 from baggins.lsdi.digwf import Client
 from baggins.lsdi.fedora import Volume
 from baggins.baggers import bag
+from baggins.lsdi.mets import Mets, METSFile, METSMap
+
+sys.tracebacklimit = 0
 
 
 class LsdiBaggee(bag.Baggee):
@@ -40,9 +47,38 @@ class LsdiBaggee(bag.Baggee):
         source_info = CollectionSources.info_by_id(self.item.collection_id)
         return {
             'Source-Organization': source_info['organization'],
-            'Organization-Address': source_info['address']
+            'Organization-Address': source_info['address'],
+            'External-Description': self.external_description()
             # more to be added later...
         }
+
+    def external_description(self):
+        source_obj = CollectionSources.info_by_id(self.item.collection_id)
+        volume = self.item.volume
+        if volume:
+            volume = self.item.volume + ". "
+        else:
+            volume = ''
+
+        if self.item.marc['245']['a']:
+           field_245a = self.item.marc['245']['a'] + ": "
+        else:
+            field_245a = ''
+        if self.item.marc['245']['b']:
+           field_245b = self.item.marc['245']['b'] + " "
+        else:
+            field_245b = ''
+
+        if self.item.marc['245']['c']:
+           field_245c = self.item.marc['245']['c'] + " "
+        else:
+            field_245c = ''
+
+        field_260 = self.item.marc['260'].get_subfields('a', 'a', 'b', 'c')
+        field_sum = (' ').join(field_260)
+
+        desc = field_245a + field_245b + field_245c + volume + field_sum
+        return desc
 
     def descriptive_metadata(self):
         '''List of descriptive metadata files to be included in the bag.
@@ -113,12 +149,12 @@ class LsdiBaggee(bag.Baggee):
                 'name': str(self.item.collection_name)
             }
         }
-        # if itme has a pid, look up related objects in fedora
+        # if item has a pid, look up related objects in fedora
         if self.item.pid:
             vol = self.repo.get_object('emory:%s' % self.item.pid, type=Volume)
-            # TODO: should error or warn if objects don't exist
-            # if not vol.exists:
-                # print "volume %s doesn't exist" % vol.pid
+            if not vol.exists:
+                print "volume %s doesn't exist or Fedora connection failed" % vol.pid
+
             if vol.exists:
                 # parent book info
                 if vol.book.exists:
@@ -146,6 +182,59 @@ class LsdiBaggee(bag.Baggee):
 
         return rel_info
 
+    def mets_metadata_info(self):
+        #list all files in the bag in mets format and for struct map for it
+        mets = Mets()
+        mets.create_dmd()
+        data_files = sorted(self.data_files())
+        tif_idx = 0
+        pos_idx = 0
+        txt_idx = 0
+        all_idx = 0
+        for idx, file in enumerate(data_files):
+            file_name = os.path.split(file)
+            filename, file_extension = os.path.splitext(file_name[1])
+            split_str = filename.split("_")
+            split_char = re.split('(\d+)',split_str[-1])
+            if file_extension == ".TIF" or file_extension == ".tif":
+                tif_idx += 1
+                tif_file = METSFile(id="TIF%s" % str(tif_idx).zfill(4), mimetype="image/tiff", loctype="URL", href=file_name[1])
+                mets.tiffs.append(tif_file)
+            if file_extension == ".jpg":
+                jpg_file = METSFile(id="JPG%s" % split_str[-1], mimetype="image/jpg", loctype="URL", href=file_name[1])
+                mets.jpgs.append(jpg_file)
+            if file_extension == ".jp2s":
+                jp2_file = METSFile(id="JP2%s" % split_str[-1], mimetype="image/jp2", loctype="URL", href=file_name[1])
+                mets.jp2s.append(jp2_file)
+            if file_extension == ".txt":
+                txt_idx += 1
+                txt_file = METSFile(id="TXT%s" % str(txt_idx).zfill(4), mimetype="plain/text", loctype="URL", href=file_name[1])
+                mets.txts.append(txt_file)
+            if file_extension == ".pdf":
+                pdf_file = METSFile(id="PDF%s" % split_str[-1], mimetype="application/pdf", loctype="URL", href=file_name[1])
+                mets.pdfs.append(pdf_file)
+            if file_extension == ".pos":
+                pos_idx +=1
+                pos_file = METSFile(id="POS%s" % str(pos_idx).zfill(4), mimetype="application/alto", loctype="URL", href=file_name[1])
+                mets.pos.append(pos_file)
+            if file_extension == ".xml":
+                afr_file = METSFile(id="AFR%s" % split_str[-1], mimetype="text/xml", loctype="URL", href=file_name[1])
+                mets.afrs.append(afr_file)
+            
+            if split_str[-1].isdigit():
+                matching = [s for s in data_files if filename in s]
+                if len(matching) == 3 and file_extension != '.pos' and file_extension != '.txt':
+                    all_idx += 1
+                    pid_struct = METSMap(order=all_idx, page_type='page', tif="TIF"+str(all_idx).zfill(4), pos="POS"+str(all_idx).zfill(4))
+                    pid_struct.txt = "TXT"+str(all_idx).zfill(4)
+                    mets.structmap.append(pid_struct)
+                else:
+                    print 'Error! Some files are missing in the volume %s' % matching
+
+        root = etree.fromstring(mets.serialize(pretty=True))
+        root.attrib['{http://www.w3.org/2001/XMLSchema-instance}schemaLocation']= "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd"
+        return etree.tostring(root, pretty_print=True)
+
     def add_relationship_metadata(self, bagdir):
         # override default implementation, since we don't just want to
         # copy existig content in, but need to output content
@@ -155,6 +244,14 @@ class LsdiBaggee(bag.Baggee):
             yaml.dump(self.relationship_metadata_info(), outfile,
                       default_flow_style=False)
 
+    def add_content_metadata(self, bagdir):
+        # override default implementation, since we don't just want to
+        # copy existig content in, but need to output content
+        rel_dir = super(LsdiBaggee, self).add_content_metadata(bagdir)
+        rel_file = os.path.join(rel_dir, '%s.mets.xml' % self.item.pid)
+        print self.mets_metadata_info()
+        with open(rel_file, 'w') as outfile:
+            outfile.write(self.mets_metadata_info())
 
 class LsdiBagger(object):
     '''Logic for the lsdi-bagger script.  Handles argument parsing, config file
@@ -172,6 +269,10 @@ class LsdiBagger(object):
 
         parser.add_argument('-f', '--file', metavar='FILE',
                             help='Digitization Workflow File With Item IDs')
+
+        parser.add_argument("-v", "--verbose",
+                  action="store_true", dest="verbose",
+                  help="print status messages to stdout and traceback")
 
         parser.add_argument('-o', '--output', metavar='OUTPUT_DIR',
                             help='Directory for generated bag content')
@@ -191,8 +292,13 @@ class LsdiBagger(object):
         # if requested, generate an empty config file that can be filled in
         # and then quit
         if self.options.gen_config:
+            print 'Generating an empty config file'
             self.generate_configfile()
             exit()
+
+        if self.options.verbose:
+            sys.tracebacklimit = 5
+            
 
         if self.options.file:
             self.options.item_ids = self.load_ids_from_file()
@@ -224,7 +330,7 @@ class LsdiBagger(object):
             try:
                 result = digwf_api.get_items(item_id=item_id)
             except requests.exceptions.HTTPError as err:
-                print 'Error querying API for %s: %s' % (item_id, err)
+                print 'Error querying DigWF REST API for %s: %s' % (item_id, err)
                 continue
 
             if result.count == 1:
@@ -232,13 +338,20 @@ class LsdiBagger(object):
                 print 'Found item %s (pid %s, control key %s, marc %s)' % \
                     (item_id, item.pid or '-', item.control_key,
                      item.marc_path)
+                try:
+                    repo.get_object(pid=item.pid)
+                except requests.exceptions.HTTPError as err:
+                    print 'Error querying Fedora REST API for %s: %s' % (item.pid, err)
+                    continue
+
+
             elif result.count == 0:
-                print 'No item found for item id %s' % item_id
+                print 'No item found for this item id %s' % item_id
                 continue
             else:
                 # shouldn't get more than one match when looking up by
                 # item id, but just in case
-                print 'Error! DigWF returned %d matches for item id %s' % \
+                print 'Error! DigWF returned %d matches for this item id %s' % \
                     (result.count, item_id)
 
                 continue
