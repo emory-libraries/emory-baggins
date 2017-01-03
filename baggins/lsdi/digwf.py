@@ -100,7 +100,7 @@ class Item(xmlmap.XmlObject):
         if os.path.exists(self.marc_path):
             with open(self.marc_path, 'r') as marcdata:
                 reader = MARCReader(marcdata, utf8_handling='replace')
-                return pymarc.parse_xml_to_array(reeader)[0]
+                return pymarc.parse_xml_to_array(reader)[0]
         else:
             print "Check if file %s exists or your mount connection" % self.marc_path
 
