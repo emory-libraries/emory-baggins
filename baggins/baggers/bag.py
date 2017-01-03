@@ -169,13 +169,13 @@ class Baggee(object):
         # we should require that minimu version and update the logic here
 
         # descriptive metadata
-        self.add_descriptive_metadata(bagdir)
+        self.add_descriptive_metadata(basedir)
 
         # content metadata
-        self.add_content_metadata(bagdir)
+        self.add_content_metadata(basedir)
 
         # relationship metadata
-        self.add_relationship_metadata(bagdir)
+        self.add_relationship_metadata(basedir)
 
         # create the bag, passing in any bag metadata and configured
         # checksum algorithms
