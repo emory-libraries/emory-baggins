@@ -37,6 +37,9 @@ requirements = [
     'cached-property',
     'awesome-slugify',
 ]
+dependency_links=[
+        "git+ssh://git@github.com/mwilliamson/mayo.git@0.2.1#egg=mayo-0.2.1"
+    ]
 
 test_requirements = ['pytest', 'pytest-cov', 'mock']
 
@@ -49,6 +52,7 @@ setup(
     license='Apache License, Version 2.0',
     packages=find_packages(),
     install_requires=requirements,
+    dependency_links=["git+ssh://git@github.com/LibraryOfCongress/bagit-python.git@master#egg=bagit"],
     setup_requires=['pytest-runner'],
     tests_require=test_requirements,
     extras_require={

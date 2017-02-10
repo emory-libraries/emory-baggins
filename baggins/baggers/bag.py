@@ -154,7 +154,7 @@ class Baggee(object):
         os.mkdir(bagdir)
 
         # add payload  data to the bag
-        self.add_data_files(bagdir)
+        
 
         # ** add metadata **
 
@@ -169,18 +169,22 @@ class Baggee(object):
         # we should require that minimu version and update the logic here
 
         # descriptive metadata
-        self.add_descriptive_metadata(basedir)
+        self.add_descriptive_metadata(bagdir)
 
         # content metadata
-        self.add_content_metadata(basedir)
+        self.add_content_metadata(bagdir)
 
         # relationship metadata
-        self.add_relationship_metadata(basedir)
+        self.add_relationship_metadata(bagdir)
+
+        self.add_data_files(bagdir)
 
         # create the bag, passing in any bag metadata and configured
         # checksum algorithms
         bag = bagit.make_bag(bagdir, self.bag_info(),
                              checksum=self.checksum_algorithms)
+
+        shutil.move(os.path.join(bagdir, 'data','metadata'), bagdir)
 
         # NOTE: to add metadata as tag files (once there is a version of
         # python-bagit that supports it), add the tagfile content to the
