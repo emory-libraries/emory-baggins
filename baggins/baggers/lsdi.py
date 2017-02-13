@@ -215,7 +215,7 @@ class LsdiBaggee(bag.Baggee):
                 mets.pdfs.append(pdf_file)
             if file_extension == ".pos":
                 pos_idx +=1
-                pos_file = METSFile(id="POS%s" % str(pos_idx).zfill(4), mimetype="application/alto", loctype="URL", href=file_name[1])
+                pos_file = METSFile(id="POS%s" % str(pos_idx).zfill(4), mimetype="text/plain", loctype="URL", href=file_name[1])
                 mets.pos.append(pos_file)
             if file_extension == ".xml":
                 afr_file = METSFile(id="AFR%s" % split_str[-1], mimetype="text/xml", loctype="URL", href=file_name[1])
