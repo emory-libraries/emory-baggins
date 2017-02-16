@@ -37,9 +37,6 @@ requirements = [
     'cached-property',
     'awesome-slugify',
 ]
-dependency_links=[
-        "git+ssh://git@github.com/mwilliamson/mayo.git@0.2.1#egg=mayo-0.2.1"
-    ]
 
 test_requirements = ['pytest', 'pytest-cov', 'mock']
 
