@@ -80,6 +80,7 @@ class LsdiBaggee(bag.Baggee):
         desc = field_245a + field_245b + field_245c + volume + field_sum
         return desc
 
+
     def descriptive_metadata(self):
         '''List of descriptive metadata files to be included in the bag.
         Currently only includes MARC XML.'''
@@ -243,6 +244,13 @@ class LsdiBaggee(bag.Baggee):
         with open(rel_file, 'w') as outfile:
             yaml.dump(self.relationship_metadata_info(), outfile,
                       default_flow_style=False)
+        rel_file2 = os.path.join(rel_dir, 'human-relationship.txt')
+        with open(rel_file2, 'w') as f1:
+            f1.write("This directory contains information regarding external object relationships."
+                     " The provided metadata includes identifi ers and information about parent collection"
+                     " information from Fedora and other volumes in a multi-volume set.")
+
+        
 
     def add_content_metadata(self, bagdir):
         # override default implementation, since we don't just want to
@@ -252,6 +260,35 @@ class LsdiBaggee(bag.Baggee):
         print self.mets_metadata_info()
         with open(rel_file, 'w') as outfile:
             outfile.write(self.mets_metadata_info())
+
+    def add_technical_metadata(self, bagdir):
+        # override default implementation, since we don't just want to
+        # copy existig content in, but need to output content
+        rel_dir = super(LsdiBaggee, self).add_technical_metadata(bagdir)
+        rel_file = os.path.join(rel_dir, 'human-technical.txt')
+        with open(rel_file, 'w') as f1:
+            f1.write("This directory should contain technical metadata"
+                     "(relevant technical/characterization files for the object,"
+                     "such as FITS, MediaInfo, MIX, etc)." 
+                     "3 4 POS files in the bag are ascii text and contain Windows-style"
+                     " (CR/LF) line feeds that may need to be converted prior to any digital repository"
+                     " ingest. 5 6 We identified no other viable technical metadata"
+                     " for the existing source data files and will not attempt to generate"
+                     " new characterization data during the initial LSDI Bags generation.")
+
+    def add_rights_metadata(self, bagdir):
+        # override default implementation, since we don't just want to
+        # copy existig content in, but need to output content
+        rel_dir = super(LsdiBaggee, self).add_rights_metadata(bagdir)
+        rel_file = os.path.join(rel_dir, 'human-rights.txt')
+        with open(rel_file, 'w') as f1:
+            for f in self.item.marc['583'].get_subfields('x', 'a', 'c', '2','3', '5'):
+                f1.write(f + "\n")
+            for f in self.item.marc['590'].get_subfields('a'):
+                f1.write(f + "\n")
+            
+
+
 
 class LsdiBagger(object):
     '''Logic for the lsdi-bagger script.  Handles argument parsing, config file

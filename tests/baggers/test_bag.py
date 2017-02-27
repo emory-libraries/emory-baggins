@@ -125,7 +125,7 @@ class TestBaggee:
 
         # should include metadata
         # - descriptive metadata
-        assert 'data/metadata/descriptive/%s' % self.marcml_basename \
+        assert 'metadata/descriptive/%s' % self.marcml_basename \
             in payload_files
 
         # bagit handles these automatically, but explicitly check that they

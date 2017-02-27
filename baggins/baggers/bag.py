@@ -52,6 +52,16 @@ class Baggee(object):
          content.'''
         return []
 
+    def technical_metadata(self):
+        '''List of files to be included in the bag as technical metadata
+         content.'''
+        return []
+
+    def rights_metadata(self):
+        '''List of files to be included in the bag as rights metadata
+         content.'''
+        return []
+
     def relationship_metadata(self):
         '''List of files to be included in the bag as relationship metadata
          content.  Should include one or both of human-readable.txt
@@ -129,6 +139,32 @@ class Baggee(object):
         # return dir in case extending class wants to use it
         return metadata_dir
 
+    def add_technical_metadata(self, bagdir):
+        techmetadata_dir = os.path.join(bagdir, 'metadata', 'technical')
+        os.makedirs(techmetadata_dir)
+        for mdata_file in self.technical_metadata():
+            shutil.copy2(mdata_file, techmetadata_dir)
+            # perms possibly not needed for metadata, since bagit
+            # doesn't have to move it
+            # mdata_base = os.path.basename(mdata_file)
+            # os.chmod(os.path.join(metadata_dir, mdata_base), 0664)
+
+        # return dir in case extending class wants to use it
+        return techmetadata_dir
+
+    def add_rights_metadata(self, bagdir):
+        rightsmetadata_dir = os.path.join(bagdir, 'metadata', 'rights')
+        os.makedirs(rightsmetadata_dir)
+        for mdata_file in self.rights_metadata():
+            shutil.copy2(mdata_file, rightsmetadata_dir)
+            # perms possibly not needed for metadata, since bagit
+            # doesn't have to move it
+            # mdata_base = os.path.basename(mdata_file)
+            # os.chmod(os.path.join(metadata_dir, mdata_base), 0664)
+
+        # return dir in case extending class wants to use it
+        return rightsmetadata_dir
+
     def add_content_metadata(self, bagdir):
         content_metadata_dir = os.path.join(bagdir, 'metadata', 'content')
         os.makedirs(content_metadata_dir)
@@ -184,6 +220,12 @@ class Baggee(object):
 
         # relationship metadata
         self.add_relationship_metadata(bagdir)
+
+        # technical metadata
+        self.add_technical_metadata(bagdir)
+
+         # rights metadata
+        self.add_rights_metadata(bagdir)
 
         bag.save()
 
