@@ -246,11 +246,40 @@ class LsdiBaggee(bag.Baggee):
                       default_flow_style=False)
         rel_file2 = os.path.join(rel_dir, 'human-relationship.txt')
         with open(rel_file2, 'w') as f1:
-            f1.write("This directory contains information regarding external object relationships."
-                     " The provided metadata includes identifi ers and information about parent collection"
+            f1.write("This directory contains information regarding external object relationships.\n"
+                     "The provided metadata includes identifiers and information about parent collection"
                      " information from Fedora and other volumes in a multi-volume set.")
 
-        
+    def add_descriptive_metadata(self, bagdir):
+        # override default implementation, since we don't just want to
+        # copy existig content in, but need to output content
+        rel_dir = super(LsdiBaggee, self).add_descriptive_metadata(bagdir)
+        rel_file = os.path.join(rel_dir, 'human-descriptive.txt')
+        with open(rel_file, 'w') as f1:
+            f1.write("This folder contains Descriptive metadata. Machine readable versions "
+                     "include available MARCXML (see _MRC.xml) and ma y also include "
+                     "additional Dublin Core records (see _DC.xml).\n\n"
+                     "The MARCXML record was generated from the original Sirsi Unicorn"
+                     "(legacy system) catalog record and may have been modified"
+                     "outside the catalog as part of the repository ingest workflow.\n\n"
+                     "Dublin Core records are derived from the MARCXML records via XSLT.")
+    
+    def add_identity_metadata(self, bagdir):
+        # override default implementation, since we don't just want to
+        # copy existig content in, but need to output content
+        rel_dir = super(LsdiBaggee, self).add_identity_metadata(bagdir)
+        rel_file = os.path.join(rel_dir, 'human-identifier.txt')
+        with open(rel_file, 'w') as f1:
+            f1.write("Bag includes all/any available identifiers such as:\n\n"
+                     "PID (Persistent identifier or PURL from pid.emory.edu)\n"
+                     "ARK (ARK identifier from pid.emory.edu)\n"
+                     "include both versions of ARK\n"
+                     "OCLC # (first matching from MARC 035$a('OCoLC'))\n"
+                     "LOCAL CALL # (MARC 786$o if exists)\n"
+                     "Digitization Workflow Application ID number\n"
+                     "BARCODE # (from Workflow App Items Table)")
+    
+
 
     def add_content_metadata(self, bagdir):
         # override default implementation, since we don't just want to
@@ -260,6 +289,11 @@ class LsdiBaggee(bag.Baggee):
         print self.mets_metadata_info()
         with open(rel_file, 'w') as outfile:
             outfile.write(self.mets_metadata_info())
+        rel_file2 = os.path.join(rel_dir, 'human-content.txt')
+        with open(rel_file2, 'w') as f1:
+            f1.write("This folder contains relevant information describing the content model"
+                     " (i.e. a description of how the digitized book  should be put together structurally,"
+                     " how the files map to the real object, etc.). The machine readable file is encode d as METS.")
 
     def add_technical_metadata(self, bagdir):
         # override default implementation, since we don't just want to
@@ -269,12 +303,22 @@ class LsdiBaggee(bag.Baggee):
         with open(rel_file, 'w') as f1:
             f1.write("This directory should contain technical metadata"
                      "(relevant technical/characterization files for the object,"
-                     "such as FITS, MediaInfo, MIX, etc)." 
-                     "3 4 POS files in the bag are ascii text and contain Windows-style"
+                     "such as FITS, MediaInfo, MIX, etc).\n\n" 
+                     "POS files in the bag are ascii text and contain Windows-style"
                      " (CR/LF) line feeds that may need to be converted prior to any digital repository"
-                     " ingest. 5 6 We identified no other viable technical metadata"
+                     " ingest.\n\nWe identified no other viable technical metadata"
                      " for the existing source data files and will not attempt to generate"
                      " new characterization data during the initial LSDI Bags generation.")
+
+    def add_audit_metadata(self, bagdir):
+        # override default implementation, since we don't just want to
+        # copy existig content in, but need to output content
+        rel_dir = super(LsdiBaggee, self).add_audit_metadata(bagdir)
+        rel_file = os.path.join(rel_dir, 'human-audit.txt')
+        with open(rel_file, 'w') as f1:
+            f1.write("This directory contains metadata for audits/events "
+                     "tied to the object (e.g. PREMIS events; event logs; etc.)\n" 
+                     "Data sources: includes all available DigWF workflow data (locally developed database).")
 
     def add_rights_metadata(self, bagdir):
         # override default implementation, since we don't just want to
