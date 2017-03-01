@@ -287,9 +287,9 @@ class LsdiBaggee(bag.Baggee):
             outfile.write(self.mets_metadata_info())
         rel_file2 = os.path.join(rel_dir, 'human-content.txt')
         with open(rel_file2, 'w') as f1:
-            f1.write("This folder contains relevant information describing the content model"
-                     " (i.e. a description of how the digitized book  should be put together structurally,"
-                     " how the files map to the real object, etc.). The machine readable file is encode d as METS.")
+            f1.write("This folder contains relevant information describing the content model "
+                     "(i.e. a description of how the digitized book should be put together structurally,"
+                     " how the files map to the real object, etc.). The machine readable file is encoded as METS.")
 
     def add_technical_metadata(self, bagdir):
         # override default implementation, since we don't just want to
