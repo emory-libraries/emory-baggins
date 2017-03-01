@@ -431,7 +431,7 @@ class LsdiBagger(object):
             try:
                 result = digwf_api.get_items(item_id=item_id)
             except requests.exceptions.HTTPError as err:
-                print 'Error querying DigWF REST API for %s: %s' % (item_id, err)
+                print 'Domokun Connection Error! Unable to query DigWF REST API for %s: %s' % (item_id, err)
                 continue
 
             if result.count == 1:
@@ -442,7 +442,7 @@ class LsdiBagger(object):
                 try:
                     repo.get_object(pid=item.pid)
                 except requests.exceptions.HTTPError as err:
-                    print 'Error querying Fedora REST API for %s: %s' % (item.pid, err)
+                    print 'Fedora Connection Error! Unable to query Fedora REST API for %s: %s' % (item.pid, err)
                     continue
 
 
