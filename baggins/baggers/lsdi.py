@@ -256,12 +256,8 @@ class LsdiBaggee(bag.Baggee):
         rel_dir = super(LsdiBaggee, self).add_descriptive_metadata(bagdir)
         rel_file = os.path.join(rel_dir, 'human-descriptive.txt')
         with open(rel_file, 'w') as f1:
-            f1.write("This folder contains Descriptive metadata. Machine readable versions "
-                     "include available MARCXML (see _MRC.xml) and ma y also include "
-                     "additional Dublin Core records (see _DC.xml).\n\n"
-                     "The MARCXML record was generated from the original Sirsi Unicorn"
-                     "(legacy system) catalog record and may have been modified"
-                     "outside the catalog as part of the repository ingest workflow.\n\n"
+            f1.write("TThis folder contains Descriptive metadata. Machine readable versions include available MARCXML (see _MRC.xml) and may also include additional Dublin Core records (see _DC.xml).\n\n"
+                     "The MARCXML record was generated from the original Sirsi Unicorn (legacy system) catalog record and may have been modified outside the catalog as part of the repository ingest workflow.\n\n"
                      "Dublin Core records are derived from the MARCXML records via XSLT.")
     
     def add_identity_metadata(self, bagdir):
@@ -320,16 +316,40 @@ class LsdiBaggee(bag.Baggee):
                      "tied to the object (e.g. PREMIS events; event logs; etc.)\n" 
                      "Data sources: includes all available DigWF workflow data (locally developed database).")
 
+    
     def add_rights_metadata(self, bagdir):
         # override default implementation, since we don't just want to
         # copy existig content in, but need to output content
         rel_dir = super(LsdiBaggee, self).add_rights_metadata(bagdir)
         rel_file = os.path.join(rel_dir, 'human-rights.txt')
         with open(rel_file, 'w') as f1:
-            for f in self.item.marc['583'].get_subfields('x', 'a', 'c', '2','3', '5'):
-                f1.write(f + "\n")
-            for f in self.item.marc['590'].get_subfields('a'):
-                f1.write(f + "\n")
+            f1.write("Rights statements for this volume are available in the descriptive metadata source (MARCXML) in Notes fields: 583; 590\n\n"
+                     "583 values are based on 008. The following subfields are included:\n"
+                     "$x public domain based on staff manually checking the place and date of publication in physical volume.\n"
+                     "$a indicates if we digitized the volume\n"
+                     "$c indicates the date we digitized the volume\n"
+                     "$3 Volume/enumeration note\n"
+                     "$2\n"
+                     "$5 Institution code for the volume digitized\n\n"
+                     "590 values are a statement/note.\n\n"
+                     "Additional rights-related workflow instances exist in the DigWF workflow "
+                     "item_states table (where workflow_step_id=24, indicating that the Public Domain check passed)."
+                     "  'Place and date of publication as recorded in the MARC record was verified"
+                     " to be consistent with the Public Domain by the Digitization Workflow Application at [timestamp]'."
+                     " Please refer to the /metadata/audit directory for more detail.")
+
+
+
+    # def add_rights_metadata(self, bagdir):
+    #     # override default implementation, since we don't just want to
+    #     # copy existig content in, but need to output content
+    #     rel_dir = super(LsdiBaggee, self).add_rights_metadata(bagdir)
+    #     rel_file = os.path.join(rel_dir, 'human-rights.txt')
+    #     with open(rel_file, 'w') as f1:
+    #         for f in self.item.marc['583'].get_subfields('x', 'a', 'c', '2','3', '5'):
+    #             f1.write(f + "\n")
+    #         for f in self.item.marc['590'].get_subfields('a'):
+    #             f1.write(f + "\n")
             
 
 
