@@ -434,6 +434,14 @@ class LsdiBagger(object):
                 print 'Domokun Connection Error! Unable to query DigWF REST API for %s: %s' % (item_id, err)
                 continue
 
+            try:
+                r = requests.head(self.options.fedora_url)
+                # prints the int of the status code.
+            except requests.ConnectionError:
+                print 'Fedora Connection Error! Unable to query Fedora REST API'
+                continue
+
+
             if result.count == 1:
                 item = result.items[0]
                 print 'Found item %s (pid %s, control key %s, marc %s)' % \
@@ -460,7 +468,7 @@ class LsdiBagger(object):
             # returns a bagit bag object.
             newbag = LsdiBaggee(item, repo).create_bag(self.options.output)
 
-            # generate source organization summaary for this bag
+            # generate source organization summary for this bag
             # self.load_source_summary(newbag)
 
             print 'Bag created at %s' % newbag
