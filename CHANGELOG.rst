@@ -1,6 +1,24 @@
 CHANGELOG
 =========
 
+Release 0.9
+-----------
+
+* As a bagger, I want a record of when and why a valid Bag is not successfully generated,  so that I can investigate and correct the problem.
+* As a bagger of LSDI books, I want information about how the payload files relate to each other, so that bag contents can be re-assembled into a digital book object for ingest into a digital repository
+* As a bagger, I want to generate an External Description so I or other organizations can easily see what the content of the bag is.
+* Baggins: update to new bagit-python master and revert to previous directory structure -- address Rebecca's issue #68
+* FedoraAdmin access for 'jfenton'
+* Incorrect mime type in METS for .pos files
+* Handling diacritics in MARC records
+* As a bagger of LSDI books, I want all relevant technical metadata about the payload to be recorded, to aid digital preservation of the payload
+* As a bagger of LSDI books, I want a human readable summary of which external relationships are recorded for the material, so that others can more easily interpret the machine readable version of the metadata.
+* As a bagger of LSDI books, I want a human readable summary of what type of audits/activity logs are available for the material, so that I am informed about its preservation history.
+* As a bagger of LSDI books, I want a human readable summary of what type of identifiers are provided for the material, so that others can more easily interpret the machine readable version of the metadata.
+* As a bagger of LSDI books, I want to provide a human readable summary of all relevant rights information in the bag, so that I know later how I can legally make use of the content of the bag
+* As a bagger of LSDI books, I want a human readable summary of what types of descriptive metadata is available for the material, so that others can interpret the enclosed metadata files.
+* As a bagger of LSDI books, I want all necessary server connections and file access to be verified before bag construction, so that partial invalid bags are less likely to be created when running the script
+
 Release 0.5
 -----------
 
