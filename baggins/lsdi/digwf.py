@@ -14,6 +14,8 @@ from cached_property import cached_property
 from eulxml import xmlmap
 import requests
 import pymarc
+import codecs
+from pymarc import MARCReader
 import os.path
 import sys
 
@@ -97,7 +99,9 @@ class Item(xmlmap.XmlObject):
     def marc(self):
         # use pymarc to read the marcxml to make fields available
         if os.path.exists(self.marc_path):
+            # with codecs.open(self.marc_path, 'r', "utf-8") as marcdata:
             with open(self.marc_path, 'r') as marcdata:
+                # reader = MARCReader(marcdata, utf8_handling='ignore')
                 return pymarc.parse_xml_to_array(marcdata)[0]
         else:
             print "Check if file %s exists or your mount connection" % self.marc_path

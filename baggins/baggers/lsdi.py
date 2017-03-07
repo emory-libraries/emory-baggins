@@ -80,6 +80,7 @@ class LsdiBaggee(bag.Baggee):
         desc = field_245a + field_245b + field_245c + volume + field_sum
         return desc
 
+
     def descriptive_metadata(self):
         '''List of descriptive metadata files to be included in the bag.
         Currently only includes MARC XML.'''
@@ -215,7 +216,7 @@ class LsdiBaggee(bag.Baggee):
                 mets.pdfs.append(pdf_file)
             if file_extension == ".pos":
                 pos_idx +=1
-                pos_file = METSFile(id="POS%s" % str(pos_idx).zfill(4), mimetype="application/alto", loctype="URL", href=file_name[1])
+                pos_file = METSFile(id="POS%s" % str(pos_idx).zfill(4), mimetype="text/plain", loctype="URL", href=file_name[1])
                 mets.pos.append(pos_file)
             if file_extension == ".xml":
                 afr_file = METSFile(id="AFR%s" % split_str[-1], mimetype="text/xml", loctype="URL", href=file_name[1])
@@ -243,6 +244,38 @@ class LsdiBaggee(bag.Baggee):
         with open(rel_file, 'w') as outfile:
             yaml.dump(self.relationship_metadata_info(), outfile,
                       default_flow_style=False)
+        rel_file2 = os.path.join(rel_dir, 'human-relationship.txt')
+        with open(rel_file2, 'w') as f1:
+            f1.write("This directory contains information regarding external object relationships.\n"
+                     "The provided metadata includes identifiers and information about parent collection"
+                     " information from Fedora and other volumes in a multi-volume set.")
+
+    def add_descriptive_metadata(self, bagdir):
+        # override default implementation, since we don't just want to
+        # copy existig content in, but need to output content
+        rel_dir = super(LsdiBaggee, self).add_descriptive_metadata(bagdir)
+        rel_file = os.path.join(rel_dir, 'human-descriptive.txt')
+        with open(rel_file, 'w') as f1:
+            f1.write("TThis folder contains Descriptive metadata. Machine readable versions include available MARCXML (see _MRC.xml) and may also include additional Dublin Core records (see _DC.xml).\n\n"
+                     "The MARCXML record was generated from the original Sirsi Unicorn (legacy system) catalog record and may have been modified outside the catalog as part of the repository ingest workflow.\n\n"
+                     "Dublin Core records are derived from the MARCXML records via XSLT.")
+    
+    def add_identity_metadata(self, bagdir):
+        # override default implementation, since we don't just want to
+        # copy existig content in, but need to output content
+        rel_dir = super(LsdiBaggee, self).add_identity_metadata(bagdir)
+        rel_file = os.path.join(rel_dir, 'human-identifier.txt')
+        with open(rel_file, 'w') as f1:
+            f1.write("Bag includes all/any available identifiers such as:\n\n"
+                     "PID (Persistent identifier or PURL from pid.emory.edu)\n"
+                     "ARK (ARK identifier from pid.emory.edu)\n"
+                     "include both versions of ARK\n"
+                     "OCLC # (first matching from MARC 035$a('OCoLC'))\n"
+                     "LOCAL CALL # (MARC 786$o if exists)\n"
+                     "Digitization Workflow Application ID number\n"
+                     "BARCODE # (from Workflow App Items Table)")
+    
+
 
     def add_content_metadata(self, bagdir):
         # override default implementation, since we don't just want to
@@ -252,6 +285,74 @@ class LsdiBaggee(bag.Baggee):
         print self.mets_metadata_info()
         with open(rel_file, 'w') as outfile:
             outfile.write(self.mets_metadata_info())
+        rel_file2 = os.path.join(rel_dir, 'human-content.txt')
+        with open(rel_file2, 'w') as f1:
+            f1.write("This folder contains relevant information describing the content model "
+                     "(i.e. a description of how the digitized book should be put together structurally,"
+                     " how the files map to the real object, etc.). The machine readable file is encoded as METS.")
+
+    def add_technical_metadata(self, bagdir):
+        # override default implementation, since we don't just want to
+        # copy existig content in, but need to output content
+        rel_dir = super(LsdiBaggee, self).add_technical_metadata(bagdir)
+        rel_file = os.path.join(rel_dir, 'human-technical.txt')
+        with open(rel_file, 'w') as f1:
+            f1.write("This directory should contain technical metadata"
+                     "(relevant technical/characterization files for the object,"
+                     "such as FITS, MediaInfo, MIX, etc).\n\n" 
+                     "POS files in the bag are ascii text and contain Windows-style"
+                     " (CR/LF) line feeds that may need to be converted prior to any digital repository"
+                     " ingest.\n\nWe identified no other viable technical metadata"
+                     " for the existing source data files and will not attempt to generate"
+                     " new characterization data during the initial LSDI Bags generation.")
+
+    def add_audit_metadata(self, bagdir):
+        # override default implementation, since we don't just want to
+        # copy existig content in, but need to output content
+        rel_dir = super(LsdiBaggee, self).add_audit_metadata(bagdir)
+        rel_file = os.path.join(rel_dir, 'human-audit.txt')
+        with open(rel_file, 'w') as f1:
+            f1.write("This directory contains metadata for audits/events "
+                     "tied to the object (e.g. PREMIS events; event logs; etc.)\n" 
+                     "Data sources: includes all available DigWF workflow data (locally developed database).")
+
+    
+    def add_rights_metadata(self, bagdir):
+        # override default implementation, since we don't just want to
+        # copy existig content in, but need to output content
+        rel_dir = super(LsdiBaggee, self).add_rights_metadata(bagdir)
+        rel_file = os.path.join(rel_dir, 'human-rights.txt')
+        with open(rel_file, 'w') as f1:
+            f1.write("Rights statements for this volume are available in the descriptive metadata source (MARCXML) in Notes fields: 583; 590\n\n"
+                     "583 values are based on 008. The following subfields are included:\n"
+                     "$x public domain based on staff manually checking the place and date of publication in physical volume.\n"
+                     "$a indicates if we digitized the volume\n"
+                     "$c indicates the date we digitized the volume\n"
+                     "$3 Volume/enumeration note\n"
+                     "$2\n"
+                     "$5 Institution code for the volume digitized\n\n"
+                     "590 values are a statement/note.\n\n"
+                     "Additional rights-related workflow instances exist in the DigWF workflow "
+                     "item_states table (where workflow_step_id=24, indicating that the Public Domain check passed)."
+                     "  'Place and date of publication as recorded in the MARC record was verified"
+                     " to be consistent with the Public Domain by the Digitization Workflow Application at [timestamp]'."
+                     " Please refer to the /metadata/audit directory for more detail.")
+
+
+
+    # def add_rights_metadata(self, bagdir):
+    #     # override default implementation, since we don't just want to
+    #     # copy existig content in, but need to output content
+    #     rel_dir = super(LsdiBaggee, self).add_rights_metadata(bagdir)
+    #     rel_file = os.path.join(rel_dir, 'human-rights.txt')
+    #     with open(rel_file, 'w') as f1:
+    #         for f in self.item.marc['583'].get_subfields('x', 'a', 'c', '2','3', '5'):
+    #             f1.write(f + "\n")
+    #         for f in self.item.marc['590'].get_subfields('a'):
+    #             f1.write(f + "\n")
+            
+
+
 
 class LsdiBagger(object):
     '''Logic for the lsdi-bagger script.  Handles argument parsing, config file
@@ -330,8 +431,16 @@ class LsdiBagger(object):
             try:
                 result = digwf_api.get_items(item_id=item_id)
             except requests.exceptions.HTTPError as err:
-                print 'Error querying DigWF REST API for %s: %s' % (item_id, err)
+                print 'Domokun Connection Error! Unable to query DigWF REST API for %s: %s' % (item_id, err)
                 continue
+
+            try:
+                r = requests.head(self.options.fedora_url)
+                # prints the int of the status code.
+            except requests.ConnectionError:
+                print 'Fedora Connection Error! Unable to query Fedora REST API'
+                continue
+
 
             if result.count == 1:
                 item = result.items[0]
@@ -341,7 +450,7 @@ class LsdiBagger(object):
                 try:
                     repo.get_object(pid=item.pid)
                 except requests.exceptions.HTTPError as err:
-                    print 'Error querying Fedora REST API for %s: %s' % (item.pid, err)
+                    print 'Fedora Connection Error! Unable to query Fedora REST API for %s: %s' % (item.pid, err)
                     continue
 
 
@@ -359,7 +468,7 @@ class LsdiBagger(object):
             # returns a bagit bag object.
             newbag = LsdiBaggee(item, repo).create_bag(self.options.output)
 
-            # generate source organization summaary for this bag
+            # generate source organization summary for this bag
             # self.load_source_summary(newbag)
 
             print 'Bag created at %s' % newbag

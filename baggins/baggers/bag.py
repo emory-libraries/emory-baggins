@@ -52,6 +52,26 @@ class Baggee(object):
          content.'''
         return []
 
+    def technical_metadata(self):
+        '''List of files to be included in the bag as technical metadata
+         content.'''
+        return []
+
+    def rights_metadata(self):
+        '''List of files to be included in the bag as rights metadata
+         content.'''
+        return []
+
+    def identity_metadata(self):
+        '''List of files to be included in the bag as identifiers metadata
+         content.'''
+        return []
+
+    def audit_metadata(self):
+        '''List of files to be included in the bag as audit metadata
+         content.'''
+        return []
+
     def relationship_metadata(self):
         '''List of files to be included in the bag as relationship metadata
          content.  Should include one or both of human-readable.txt
@@ -129,6 +149,58 @@ class Baggee(object):
         # return dir in case extending class wants to use it
         return metadata_dir
 
+    def add_technical_metadata(self, bagdir):
+        techmetadata_dir = os.path.join(bagdir, 'metadata', 'technical')
+        os.makedirs(techmetadata_dir)
+        for mdata_file in self.technical_metadata():
+            shutil.copy2(mdata_file, techmetadata_dir)
+            # perms possibly not needed for metadata, since bagit
+            # doesn't have to move it
+            # mdata_base = os.path.basename(mdata_file)
+            # os.chmod(os.path.join(metadata_dir, mdata_base), 0664)
+
+        # return dir in case extending class wants to use it
+        return techmetadata_dir
+
+    def add_rights_metadata(self, bagdir):
+        rightsmetadata_dir = os.path.join(bagdir, 'metadata', 'rights')
+        os.makedirs(rightsmetadata_dir)
+        for mdata_file in self.rights_metadata():
+            shutil.copy2(mdata_file, rightsmetadata_dir)
+            # perms possibly not needed for metadata, since bagit
+            # doesn't have to move it
+            # mdata_base = os.path.basename(mdata_file)
+            # os.chmod(os.path.join(metadata_dir, mdata_base), 0664)
+
+        # return dir in case extending class wants to use it
+        return rightsmetadata_dir
+
+    def add_audit_metadata(self, bagdir):
+        auditmetadata_dir = os.path.join(bagdir, 'metadata', 'audit')
+        os.makedirs(auditmetadata_dir)
+        for mdata_file in self.audit_metadata():
+            shutil.copy2(mdata_file, auditmetadata_dir)
+            # perms possibly not needed for metadata, since bagit
+            # doesn't have to move it
+            # mdata_base = os.path.basename(mdata_file)
+            # os.chmod(os.path.join(metadata_dir, mdata_base), 0664)
+
+        # return dir in case extending class wants to use it
+        return auditmetadata_dir
+
+    def add_identity_metadata(self, bagdir):
+        identitymetadata_dir = os.path.join(bagdir, 'metadata', 'identifiers')
+        os.makedirs(identitymetadata_dir)
+        for mdata_file in self.identity_metadata():
+            shutil.copy2(mdata_file, identitymetadata_dir)
+            # perms possibly not needed for metadata, since bagit
+            # doesn't have to move it
+            # mdata_base = os.path.basename(mdata_file)
+            # os.chmod(os.path.join(metadata_dir, mdata_base), 0664)
+
+        # return dir in case extending class wants to use it
+        return identitymetadata_dir
+
     def add_content_metadata(self, bagdir):
         content_metadata_dir = os.path.join(bagdir, 'metadata', 'content')
         os.makedirs(content_metadata_dir)
@@ -168,6 +240,14 @@ class Baggee(object):
         # for the fix.  Once a new release is available with the fix,
         # we should require that minimu version and update the logic here
 
+
+        
+
+        # create the bag, passing in any bag metadata and configured
+        # checksum algorithms
+        bag = bagit.make_bag(bagdir, self.bag_info(),
+                             checksum=self.checksum_algorithms)
+
         # descriptive metadata
         self.add_descriptive_metadata(bagdir)
 
@@ -177,10 +257,19 @@ class Baggee(object):
         # relationship metadata
         self.add_relationship_metadata(bagdir)
 
-        # create the bag, passing in any bag metadata and configured
-        # checksum algorithms
-        bag = bagit.make_bag(bagdir, self.bag_info(),
-                             checksum=self.checksum_algorithms)
+        # technical metadata
+        self.add_technical_metadata(bagdir)
+
+         # rights metadata
+        self.add_rights_metadata(bagdir)
+
+        # identifiers metadata
+        self.add_identity_metadata(bagdir)
+
+        # audit metadata
+        self.add_audit_metadata(bagdir)
+
+        bag.save()
 
         # NOTE: to add metadata as tag files (once there is a version of
         # python-bagit that supports it), add the tagfile content to the
